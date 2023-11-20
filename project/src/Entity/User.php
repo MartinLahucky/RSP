@@ -3,10 +3,21 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+
+enum Role: int
+{
+    case ADMIN = 0;
+    case SEFREDAKTOR = 1;
+    case REDAKTOR = 2;
+    case RECENZENT = 3;
+    case AUTOR = 4;
+}
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
@@ -34,6 +45,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    #[ORM\ManyToMany(targetEntity: Ukol::class, mappedBy: 'user')]
+    private Collection $ukoly;
+
+    public function __construct()
+    {
+        $this->ukoly = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -127,5 +146,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, Ukol>
+     */
+    public function getUkoly(): Collection
+    {
+        return $this->ukoly;
+    }
+
+    public function addUkoly(Ukol $ukoly): static
+    {
+        if (!$this->ukoly->contains($ukoly)) {
+            $this->ukoly->add($ukoly);
+            $ukoly->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUkoly(Ukol $ukoly): static
+    {
+        if ($this->ukoly->removeElement($ukoly)) {
+            $ukoly->removeUser($this);
+        }
+
+        return $this;
     }
 }
