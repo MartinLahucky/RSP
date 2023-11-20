@@ -1,0 +1,83 @@
+{# Toto je Twig šablona s využitím Bootstrapu #}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta informace a odkaz na Bootstrap styly -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        /* Případné vlastní styly */
+        .article-version {
+            margin: 10px 0;
+            padding: 10px;
+        }
+
+        .article-version-header {
+            background-color: #BE0000;
+            color: #ffffff;
+            padding: 5px;
+            font-weight: bold;
+        }
+
+        .article-version-body {
+            background-color: #DE7D7D;
+            color: #ffffff;
+            padding: 5px;
+            font-weight: bold;
+        }
+
+        .article-diff {
+            border: 1px solid #BE0000;
+            margin-top: 10px;
+            padding: 10px;
+        }
+        .article-version{
+            border-radius: 45px;
+            background-color: #DE7D7D;
+        }
+        .btn{
+            background-color: #BE0000;
+            color: white;
+        }
+        .btn:hover{
+            background-color: #BE0000;
+            color: white;
+        }
+    </style>
+    <title>Verze článku</title>
+</head>
+<body>
+
+<!-- Hlavní kontejner stránky s Bootstrap třídami -->
+<div class="container mt-5">
+
+    <!-- Hlavní nadpis stránky -->
+    <h1 class="mb-4">Verze článku</h1>
+
+    {% for id in Clanek.id %}
+    <div class="article-version">
+        <div class="article-version-header">
+            Verze {{ VerzeClanku.id }}
+        </div>
+        <p>Vydáno: {{ VerzeClanku.datum_nahrani|date('Y-m-d H:i:s') }}</p>
+        <p>Comments: {{ KomentarClanek.text }}</p>
+        <p>Status: {{ VerzeClanku.zpristupnen_recenzentum }}</p>
+
+        <a href="{{ VerzeClanku.soubor_clanek }}">Obsah verze</a>
+s
+
+        </div>
+
+
+
+</div>
+
+<!-- Odkaz na Bootstrap JavaScript soubory (pokud jsou potřeba) -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>
