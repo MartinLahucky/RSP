@@ -10,13 +10,13 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-enum Role: int
+enum Role: string
 {
-    case ADMIN = 0;
-    case SEFREDAKTOR = 1;
-    case REDAKTOR = 2;
-    case RECENZENT = 3;
-    case AUTOR = 4;
+    case ADMIN = "ADMIN";
+    case SEFREDAKTOR = "SEFREDAKTOR";
+    case REDAKTOR = "REDAKTOR";
+    case RECENZENT = "RECENZENT";
+    case AUTOR = "AUTOR";
 }
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -112,7 +112,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        $roles[] = "AUTOR";
 
         return array_unique($roles);
     }

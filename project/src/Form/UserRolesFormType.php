@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Role;
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -14,10 +15,15 @@ class UserRolesFormType extends AbstractType
     {
         $builder
             ->add('email')
+            ->add('firstname')
+            ->add('lastname')
             ->add('roles', ChoiceType::class, [
                 'choices' => [
-                    'User' => 'ROLE_USER',
-                    'Admin' => 'ROLE_ADMIN',
+                    Role::ADMIN->name => Role::ADMIN->value,
+                    Role::SEFREDAKTOR->name => Role::SEFREDAKTOR->value,
+                    Role::REDAKTOR->name => Role::REDAKTOR->value,
+                    Role::RECENZENT->name => Role::RECENZENT->value,
+                    Role::AUTOR->name => Role::AUTOR->value
                     // add more roles here if needed
                 ],
                 'multiple' => true, // set to true to handle an array of roles
