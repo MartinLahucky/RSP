@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hodnocení článku</title>
+    <!-- Připojení Bootstrap CSS pro vzhled formuláře -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+
+        .btn{
+            background-color: #DE7D7D;
+            color: white;
+            border-color: #DE7D7D;
+        }
+        .btn:hover{
+            background-color: #DE7D7D;
+            color: white;
+            border-color: #DE7D7D;
+        }
+        .container{
+            background-color: #DE7D7D;
+            color: white;
+            border-radius: 45px;
+            padding: 20px;
+        }
+        .card{
+            border-color: #BE0000;
+            border-radius: 45px;
+        }
+        .card-header{
+            background-color: #BE0000;
+            color: white;
+            border-radius: 45px 45px 0 0;
+        }
+        .card-body{
+            background-color: #BE0000;
+            color: white;
+            border-radius: 0 0 45px 45px;
+
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+
+    <h1>Hodnocení článku</h1>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Hodnotící kritéria</h3>
+        </div>
+        <div class="card-body">
+            <!-- Formulář pro hodnocení článku -->
+            <form action="{{ path('???') }}" method="post">
+                <!-- Zpřístupnění autorovi -->
+                <div class="form-group">
+                    <label for="accessibility_to_author">Zpřístupnění autorovi:</label>
+                    <select class="form-control" id="accessibility_to_author" name="accessibility_to_author" required>
+                        <option value="true">Ano</option>
+                        <option value="false">Ne</option>
+                    </select>
+                </div>
+
+                <!-- Aktuálnost -->
+                <div class="form-group">
+                    <label for="relevance">Aktuálnost (1-10):</label>
+                    <input type="number" class="form-control" id="relevance" name="relevance" min="1" max="10" required>
+                </div>
+
+                <!-- Zajímavost -->
+                <div class="form-group">
+                    <label for="interest">Zajímavost (1-10):</label>
+                    <input type="number" class="form-control" id="interest" name="interest" min="1" max="10" required>
+                </div>
+
+                <!-- Originalita -->
+                <div class="form-group">
+                    <label for="originality">Originalita (1-10):</label>
+                    <input type="number" class="form-control" id="originality" name="originality" min="1" max="10" required>
+                </div>
+
+                <!-- Odborná úroveň -->
+                <div class="form-group">
+                    <label for="expertise">Odborná úroveň (1-10):</label>
+                    <input type="number" class="form-control" id="expertise" name="expertise" min="1" max="10" required>
+                </div>
+
+                <!-- Jazyková úroveň -->
+                <div class="form-group">
+                    <label for="language_level">Jazyková úroveň (1-10):</label>
+                    <input type="number" class="form-control" id="language_level" name="language_level" min="1" max="10" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Odeslat</button>
+            </form>
+        </div>
+    </div>
+
+
+</div>
+
+<!-- Připojení Bootstrap JavaScript souborů (pokud jsou potřeba) -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>
