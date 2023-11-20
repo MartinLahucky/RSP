@@ -71,7 +71,6 @@ class HomeController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
-        // Render the form view in your template
         return $this->render('home/create-clanek.html.twig', [
             'form' => $form->createView(),
         ]);
