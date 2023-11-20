@@ -18,7 +18,7 @@ class RecenzniRizeni
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Tisk $tisk_id = null;
+    private ?Tisk $tisk = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $od = null;
@@ -39,14 +39,14 @@ class RecenzniRizeni
         return $this->id;
     }
 
-    public function getTiskId(): ?Tisk
+    public function getTisk(): ?Tisk
     {
-        return $this->tisk_id;
+        return $this->tisk;
     }
 
-    public function setTiskId(Tisk $tisk_id): static
+    public function setTisk(Tisk $tisk): static
     {
-        $this->tisk_id = $tisk_id;
+        $this->tisk = $tisk;
 
         return $this;
     }

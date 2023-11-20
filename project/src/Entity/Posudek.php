@@ -15,11 +15,11 @@ class Posudek
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Clanek $clanek_id = null;
+    private ?Clanek $clanek = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user_id = null;
+    private ?User $user = null;
 
     #[ORM\Column(length: 1000)]
     private ?string $posudek_soubor = null;
@@ -47,26 +47,26 @@ class Posudek
         return $this->id;
     }
 
-    public function getClanekId(): ?Clanek
+    public function getClanek(): ?Clanek
     {
-        return $this->clanek_id;
+        return $this->clanek;
     }
 
-    public function setClanekId(?Clanek $clanek_id): static
+    public function setClanek(?Clanek $clanek): static
     {
-        $this->clanek_id = $clanek_id;
+        $this->clanek = $clanek;
 
         return $this;
     }
 
-    public function getUserId(): ?User
+    public function getUser(): ?User
     {
-        return $this->user_id;
+        return $this->user;
     }
 
-    public function setUserId(?User $user_id): static
+    public function setUser(?User $user): static
     {
-        $this->user_id = $user_id;
+        $this->user = $user;
 
         return $this;
     }

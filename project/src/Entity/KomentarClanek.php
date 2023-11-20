@@ -16,11 +16,11 @@ class KomentarClanek
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?VerzeClanku $verze_clanku_id = null;
+    private ?VerzeClanku $verze_clanku = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user_id = null;
+    private ?User $user = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $datum = null;
@@ -33,26 +33,26 @@ class KomentarClanek
         return $this->id;
     }
 
-    public function getVerzeClankuId(): ?VerzeClanku
+    public function getVerzeClanku(): ?VerzeClanku
     {
-        return $this->verze_clanku_id;
+        return $this->verze_clanku;
     }
 
-    public function setVerzeClankuId(?VerzeClanku $verze_clanku_id): static
+    public function setVerzeClanku(?VerzeClanku $verze_clanku): static
     {
-        $this->verze_clanku_id = $verze_clanku_id;
+        $this->verze_clanku = $verze_clanku;
 
         return $this;
     }
 
-    public function getUserId(): ?User
+    public function getUser(): ?User
     {
-        return $this->user_id;
+        return $this->user;
     }
 
-    public function setUserId(?User $user_id): static
+    public function setUser(?User $user): static
     {
-        $this->user_id = $user_id;
+        $this->user = $user;
 
         return $this;
     }

@@ -40,7 +40,7 @@ class Clanek
 
     #[ORM\ManyToOne(inversedBy: 'stav_autor')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?RecenzniRizeni $id_recenzni_rizeni = null;
+    private ?RecenzniRizeni $recenzni_rizeni = null;
 
     #[ORM\Column]
     private ?int $stav_redakce = null;
@@ -50,7 +50,7 @@ class Clanek
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user_id = null;
+    private ?User $user = null;
 
     public function getId(): ?int
     {
@@ -59,12 +59,12 @@ class Clanek
 
     public function getIdRecenzniRizeni(): ?RecenzniRizeni
     {
-        return $this->id_recenzni_rizeni;
+        return $this->recenzni_rizeni;
     }
 
-    public function setIdRecenzniRizeni(?RecenzniRizeni $id_recenzni_rizeni): static
+    public function setIdRecenzniRizeni(?RecenzniRizeni $recenzni_rizeni): static
     {
-        $this->id_recenzni_rizeni = $id_recenzni_rizeni;
+        $this->recenzni_rizeni = $recenzni_rizeni;
 
         return $this;
     }
@@ -95,12 +95,12 @@ class Clanek
 
     public function getUserId(): ?User
     {
-        return $this->user_id;
+        return $this->user;
     }
 
-    public function setUserId(?User $user_id): static
+    public function setUserId(?User $user): static
     {
-        $this->user_id = $user_id;
+        $this->user = $user;
 
         return $this;
     }

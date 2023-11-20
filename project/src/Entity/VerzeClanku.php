@@ -16,7 +16,7 @@ class VerzeClanku
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Clanek $clanek_id = null;
+    private ?Clanek $clanek = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $datum_nahrani = null;
@@ -32,14 +32,14 @@ class VerzeClanku
         return $this->id;
     }
 
-    public function getClanekId(): ?Clanek
+    public function getClanek(): ?Clanek
     {
-        return $this->clanek_id;
+        return $this->clanek;
     }
 
-    public function setClanekId(?Clanek $clanek_id): static
+    public function setClanek(?Clanek $clanek): static
     {
-        $this->clanek_id = $clanek_id;
+        $this->clanek = $clanek;
 
         return $this;
     }
