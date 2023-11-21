@@ -20,11 +20,11 @@ class RecenzniRizeni
     #[ORM\JoinColumn(nullable: false)]
     private ?Tisk $tisk = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $od = null;
+    #[ORM\Column(length: 10)]
+    private ?string $od = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $do = null;
+    #[ORM\Column(length: 10)]
+    private ?string $do = null;
 
     #[ORM\OneToMany(mappedBy: 'id_recenzni_rizeni', targetEntity: Clanek::class, orphanRemoval: true)]
     private Collection $clanky;
@@ -51,24 +51,24 @@ class RecenzniRizeni
         return $this;
     }
 
-    public function getOd(): ?\DateTimeInterface
+    public function getOd(): ?string
     {
         return $this->od;
     }
 
-    public function setOd(\DateTimeInterface $od): static
+    public function setOd(string $od): static
     {
         $this->od = $od;
 
         return $this;
     }
 
-    public function getDo(): ?\DateTimeInterface
+    public function getDo(): ?string
     {
         return $this->do;
     }
 
-    public function setDo(\DateTimeInterface $do): static
+    public function setDo(string $do): static
     {
         $this->do = $do;
 

@@ -18,14 +18,16 @@ class VerzeClanku
     #[ORM\JoinColumn(nullable: false)]
     private ?Clanek $clanek = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $datum_nahrani = null;
+    #[ORM\Column(length: 10)]
+    private ?string $datum_nahrani = null;
 
     #[ORM\Column(length: 1000)]
     private ?string $soubor_clanek = null;
 
     #[ORM\Column]
     private ?bool $zpristupnen_recenzentum = null;
+
+    private string $datum_nahrani_str;
 
     public function getId(): ?int
     {
@@ -44,12 +46,12 @@ class VerzeClanku
         return $this;
     }
 
-    public function getDatumNahrani(): ?\DateTimeInterface
+    public function getDatumNahrani(): ?string
     {
         return $this->datum_nahrani;
     }
 
-    public function setDatumNahrani(\DateTimeInterface $datum_nahrani): static
+    public function setDatumNahrani(string $datum_nahrani): static
     {
         $this->datum_nahrani = $datum_nahrani;
 
@@ -78,5 +80,11 @@ class VerzeClanku
         $this->zpristupnen_recenzentum = $zpristupnen_recenzentum;
 
         return $this;
+    }
+
+    public function convertDateToString(): void
+    {
+        $format = 'Y-m-d';
+        $this->datum_nahrani_str = $this->datum_nahrani->format($format);
     }
 }
