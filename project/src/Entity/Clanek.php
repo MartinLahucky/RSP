@@ -48,6 +48,9 @@ class Clanek
     #[ORM\Column(length: 50)]
     private ?string $stav_autor = null;
 
+    #[ORM\Column(length: 50)]
+    private ?string $nazev_clanku = null;
+
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
@@ -77,6 +80,18 @@ class Clanek
     public function setStavRedakce(int $stav_redakce): static
     {
         $this->stav_redakce = $stav_redakce;
+
+        return $this;
+    }
+
+    public function getNazevClanku(): ?string
+    {
+        return $this->nazev_clanku;
+    }
+
+    public function setNazevClanku(int $nazev_clanku): static
+    {
+        $this->nazev_clanku = $nazev_clanku;
 
         return $this;
     }
