@@ -324,5 +324,41 @@ class HomeController extends AbstractController
         ]);
     }
 
+    #[Route(path: '/delete-clanek/{id}', name: 'app_delete_clanek')]
+    public function deleteClanek(Request $request, ManagerRegistry $doctrine, $id): Response
+    {   
+        if ($this->getUser()==null) 
+        {
+            throw $this->createAccessDeniedException("lol nemáš práva xD");
+        }
+
+        if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
+            throw $this->createAccessDeniedException("lol nemáš práva xD");
+        }
+        // Create a new empty Clanek entity
+        $clanek = $doctrine->getManager()->getRepository(Clanek::class)->find($id); 
+
+        if ($this->isCsrfTokenValid('delete'.$clanek->getId(), $request->request->get('_token'))) 
+        {
+
+            // Get the entity manager
+            $em = $doctrine->getManager();
+
+            // Remove the new tisk entity
+            $em->remove($clanek);
+
+            // Flush to save the new tisk entity to the database
+            $em->flush();
+
+            // Redirect to the home page or any other page
+            return $this->redirectToRoute('app_home');
+        }
+
+        // Render the form view in your template
+        return $this->render('home/delete-clanek.html.twig', [
+            'clanek' => $clanek,
+        ]);
+    }
+
 
 }
