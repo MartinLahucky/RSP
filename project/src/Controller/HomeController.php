@@ -14,6 +14,7 @@ use App\Entity\Role;
 use App\Entity\User;
 use App\Entity\Tisk;
 use App\Entity\RecenzniRizeni;
+use App\Entity\VerzeClanku;
 use App\Form\ClanekFormType;
 use App\Form\RecenzniRizeniFormType;
 use App\Form\TiskFormType;
@@ -359,6 +360,5 @@ class HomeController extends AbstractController
             'clanek' => $clanek,
         ]);
     }
-
 
 }
