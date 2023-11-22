@@ -3,7 +3,7 @@
 {% block title %}Přihlášení!{% endblock %}
 
 {% block body %}
-<!--
+<!-- Ondruv form
 <form method="post">
     {% if error %}
         <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
@@ -42,46 +42,47 @@
                 {% endif %}
             </form>
         </div>
-    
-
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in here </h1>
-    <label for="inputEmail">Email</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
-
-    <input type="hidden" name="_csrf_token"
-           value="{{ csrf_token('authenticate') }}"
-    >
-
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
 </form>
 -->
 
+<form method="post">
+    {% if error %}
+        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+
+    {% if app.user %}
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="mb-3 alert alert-secondary text-center">
+                            Jste přihlášen jako <b>{{ app.user.userIdentifier }}</b> <a href="{{ path('app_logout') }}">Odhlásit</a>
+                        </div>
+                    </div>
+                </div>
+    {% else %}
 <div class="container">
   <div class="row justify-content-center">
     <div class="col-xs-4 login m-3">
           <h1 class="p-3 headingLogin text-center m-3">Přihlášení</h1>
-          <form>
+          <form method="post" class="form-signin">
             <div class="form-group mt-5">
-              <label for="login">Email</label><br />
-              <input type="text" class="inputLogin" id="login" placeholder="Enter your login">
+              <label for="email">Email</label><br />
+              <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control inputLogin" autocomplete="email" required autofocus>
             </div>
             <div class="form-group mt-5">
               <label for="password">Password</label><br />
-              <input type="password" class="inputLogin" id="password" placeholder="Enter your password">
+              <input type="password" name="password" id="inputPassword" class="form-control inputLogin" autocomplete="current-password" required>
               <div>Nemám účet</div>
+              <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
             </div>
             <div class="form-group mt-5">
               <button type="submit" class="btn btn-primary btn-light p-3">Přihlásit</button>
             </div>
           </form>
-              
+    {% endif %}
     </div>
   </div>
 </div>
+</form>
 
         <!-- Footer -->
         <footer class="footer mt-auto">
