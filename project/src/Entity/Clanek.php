@@ -60,12 +60,12 @@ class Clanek
         return $this->id;
     }
 
-    public function getIdRecenzniRizeni(): ?RecenzniRizeni
+    public function getRecenzniRizeni(): ?RecenzniRizeni
     {
         return $this->recenzni_rizeni;
     }
 
-    public function setIdRecenzniRizeni(?RecenzniRizeni $recenzni_rizeni): static
+    public function setRecenzniRizeni(?RecenzniRizeni $recenzni_rizeni): static
     {
         $this->recenzni_rizeni = $recenzni_rizeni;
 
@@ -77,7 +77,7 @@ class Clanek
         return $this->stav_redakce;
     }
 
-    public function setStavRedakce(int $stav_redakce): static
+    public function setStavRedakce(string $stav_redakce): static
     {
         $this->stav_redakce = $stav_redakce;
 
@@ -89,7 +89,7 @@ class Clanek
         return $this->nazev_clanku;
     }
 
-    public function setNazevClanku(int $nazev_clanku): static
+    public function setNazevClanku(string $nazev_clanku): static
     {
         $this->nazev_clanku = $nazev_clanku;
 
@@ -101,19 +101,19 @@ class Clanek
         return $this->stav_autor;
     }
 
-    public function setStavAutor(int $stav_autor): static
+    public function setStavAutor(string $stav_autor): static
     {
         $this->stav_autor = $stav_autor;
 
         return $this;
     }
 
-    public function getUserId(): ?User
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUserId(?User $user): static
+    public function setUser(?User $user): static
     {
         $this->user = $user;
 

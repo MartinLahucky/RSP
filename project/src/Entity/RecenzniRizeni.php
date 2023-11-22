@@ -87,7 +87,7 @@ class RecenzniRizeni
     {
         if (!$this->clanky->contains($clanek)) {
             $this->clanky->add($clanek);
-            $clanek->setIdRecenzniRizeni($this);
+            $clanek->setRecenzniRizeni($this);
         }
 
         return $this;
@@ -97,8 +97,8 @@ class RecenzniRizeni
     {
         if ($this->clanky->removeElement($clanek)) {
             // set the owning side to null (unless already changed)
-            if ($clanek->getIdRecenzniRizeni() === $this) {
-                $clanek->setIdRecenzniRizeni(null);
+            if ($clanek->getRecenzniRizeni() === $this) {
+                $clanek->setRecenzniRizeni(null);
             }
         }
 
