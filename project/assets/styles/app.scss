@@ -16,7 +16,7 @@
     margin: 0;
     padding: 0;
     //font:inherit;
-    color:white;
+    color:rgb(74, 85, 14);
 }
 
 html, body{
@@ -31,6 +31,18 @@ html:focus-within{
 .bg-red {
     background-color: var(--clr-red);
   }
+
+.bg-red-soft{
+    background-color: var(--clr-red-soft);
+}
+
+.bg-red-soft:hover {
+    background-color: var(--clr-red);
+}
+
+.btn .btn-primary{
+    border:none !important;
+}
 
 .footer-background {
     margin-top: 0;
@@ -52,9 +64,9 @@ html:focus-within{
     border:none !important;
 }
 
-.white:hover{
-    background-color: hsl(12, 69%, 53%) !important;
-}
+//.white:hover{
+//    background-color: hsl(12, 69%, 53%) !important;
+//}
 
 .kontejner{
     display: flex;
@@ -100,3 +112,14 @@ html:focus-within{
 .form-group { 
     text-align: center; 
 }
+
+.rad-25{
+    border-radius: 25px;
+}
+
+.card-header{
+    border-radius: calc(1.25rem - 1px) calc(1.25rem - 1px) 0 0!important;
+}
+
+
+

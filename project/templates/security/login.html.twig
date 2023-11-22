@@ -3,6 +3,7 @@
 {% block title %}Přihlášení!{% endblock %}
 
 {% block body %}
+{#
  Ondruv form
 <form method="post">
     {% if error %}
@@ -43,7 +44,7 @@
             </form>
         </div>
 </form>
-
+#}
 
 <form method="post">
     {% if error %}
@@ -65,13 +66,13 @@
           <h1 class="p-3 headingLogin text-center m-3">Přihlášení</h1>
           <form method="post" class="form-signin">
             <div class="form-group mt-5">
-              <label for="email">Email</label><br />
-              <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control inputLogin" autocomplete="email" required autofocus>
+              <label for="email" class="white">Email</label><br />
+              <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control inputLogin w-50 mx-auto" autocomplete="email" required autofocus>
             </div>
             <div class="form-group mt-5">
-              <label for="password">Password</label><br />
-              <input type="password" name="password" id="inputPassword" class="form-control inputLogin" autocomplete="current-password" required>
-              <div>Nemám účet</div>
+              <label for="password" class="white">Password</label><br />
+              <input type="password" name="password" id="inputPassword" class="form-control inputLogin w-50 mx-auto" autocomplete="current-password" required>
+              <div class="white">Nemám účet</div>
               <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
             </div>
             <div class="form-group mt-5">
@@ -84,14 +85,14 @@
 </div>
 </form>
 
-        <!-- Footer -->
+        <!-- Footer 
         <footer class="footer mt-auto">
             <div class="container-fluid">
             <div class="footer-background footer mt-auto">
             <p>Made with ❤️ by KERNEL</p>
         </div>
   </div>
-</footer>
+</footer>-->
     </div>
 </div>
 {% endblock %}
