@@ -5,29 +5,29 @@ namespace App\Entity;
 use App\Repository\ClanekRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-enum StavAutor: string
+enum StavAutor: int
 {
-    case PODANO = "PODANO";
-    case TEMATICKA_NEVHODNOST = "TEMATICKA NEVHODNOST";
-    case PREDANO_RECENZENTUM = "PREDANO RECENZENTUM";
-    case ZAMITNUTO = "ZAMITNUTO";
-    case PRIJATO_S_VYHRADAMI = "PRIJATO S VYHRADAMI";
-    case OPRAVA_AUTORA = "OPRAVA AUTORA";
-    case DODATECNE_VYJADRENI_AUTORA = "DODATECNE VYJADRENI AUTORA";
-    case VYJADRENI_SEFREDAKTORA = "CEKANI NA VYJADRENI SEFREDAKTORA";
-    case PRIJATO = "PRIJATO";
+    case PODANO = 0;
+    case TEMATICKA_NEVHODNOST = 1;
+    case PREDANO_RECENZENTUM = 2;
+    case ZAMITNUTO = 3;
+    case PRIJATO_S_VYHRADAMI = 4;
+    case OPRAVA_AUTORA = 5;
+    case DODATECNE_VYJADRENI_AUTORA = 6;
+    case VYJADRENI_SEFREDAKTORA = 7;  // Cekani na vyjadreni od sefredaktora
+    case PRIJATO = 8;
 }
 
-enum StavRedakce: string
+enum StavRedakce: int
 {
-    case NOVE_PODANY = "NOVE PODANY";
-    case CEKA_NA_STANOVENI_RECENZENTU = "CEKA NA STANOVENI RECENZENTU";
-    case POSUDEK_1_DORUCEN = "POSUDEK 1 DORUCEN";
-    case POSUDEK_2_DORUCEN = "POSUDEK 2 DORUCEN";
-    case POSUDKY_ODESLANY_AUTOROVI = "POSUDKY ODESLANY AUTOROVI";
-    case UPRAVA_TEXTU_AUTOREM = "UPRAVA TEXTU AUTOREM";
-    case PRIJATO = "PRIJATO";
-    case ZAMITNUTO = "ZAMITNUTO";
+    case NOVE_PODANY = 0;
+    case CEKA_NA_STANOVENI_RECENZENTU = 1;
+    case POSUDEK_1_DORUCEN = 2;
+    case POSUDEK_2_DORUCEN = 3;
+    case POSUDKY_ODESLANY_AUTOROVI = 4;
+    case UPRAVA_TEXTU_AUTOREM = 5;
+    case PRIJATO = 6;
+    case ZAMITNUTO = 7;
 }
 
 #[ORM\Entity(repositoryClass: ClanekRepository::class)]
@@ -42,11 +42,11 @@ class Clanek
     #[ORM\JoinColumn(nullable: false)]
     private ?RecenzniRizeni $recenzni_rizeni = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $stav_redakce = null;
+    #[ORM\Column]
+    private ?int $stav_redakce = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $stav_autor = null;
+    #[ORM\Column]
+    private ?int $stav_autor = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -69,7 +69,7 @@ class Clanek
         return $this;
     }
 
-    public function getStavRedakce(): ?string
+    public function getStavRedakce(): ?int
     {
         return $this->stav_redakce;
     }
@@ -81,7 +81,7 @@ class Clanek
         return $this;
     }
 
-    public function getStavAutor(): ?string
+    public function getStavAutor(): ?int
     {
         return $this->stav_autor;
     }

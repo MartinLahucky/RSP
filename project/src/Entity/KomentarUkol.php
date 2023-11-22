@@ -22,8 +22,8 @@ class KomentarUkol
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\Column(length: 10)]
-    private ?string $datum = null;
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    private ?\DateTimeInterface $datum = null;
 
     #[ORM\Column(length: 10000)]
     private ?string $text = null;
@@ -57,12 +57,12 @@ class KomentarUkol
         return $this;
     }
 
-    public function getDatum(): ?string
+    public function getDatum(): ?\DateTimeInterface
     {
         return $this->datum;
     }
 
-    public function setDatum(string $datum): static
+    public function setDatum(\DateTimeInterface $datum): static
     {
         $this->datum = $datum;
 

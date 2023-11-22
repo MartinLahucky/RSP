@@ -18,8 +18,8 @@ class Namitka
     #[ORM\JoinColumn(nullable: false)]
     private ?Clanek $clanek = null;
 
-    #[ORM\Column(length: 10)]
-    private ?string $datum = null;
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    private ?\DateTimeInterface $datum = null;
 
     #[ORM\Column(length: 10000)]
     private ?string $text_namitky = null;
@@ -41,12 +41,12 @@ class Namitka
         return $this;
     }
 
-    public function getDatum(): ?string
+    public function getDatum(): ?\DateTimeInterface
     {
         return $this->datum;
     }
 
-    public function setDatum(string $datum): static
+    public function setDatum(\DateTimeInterface $datum): static
     {
         $this->datum = $datum;
 

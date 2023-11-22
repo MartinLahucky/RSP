@@ -14,8 +14,8 @@ class Tisk
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 10)]
-    private ?string $datum = null;
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    private ?\DateTimeInterface $datum = null;
 
     #[ORM\Column]
     private ?int $kapacita = null;
@@ -25,12 +25,12 @@ class Tisk
         return $this->id;
     }
 
-    public function getDatum(): ?string
+    public function getDatum(): ?\DateTimeInterface
     {
         return $this->datum;
     }
 
-    public function setDatum(string $datum): static
+    public function setDatum(\DateTimeInterface $datum): static
     {
         $this->datum = $datum;
 
