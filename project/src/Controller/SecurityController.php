@@ -183,7 +183,6 @@ class SecurityController extends AbstractController
         foreach ($clanky as $clanek)
         {
             $verze = $manager->getRepository(VerzeClanku::class)->findOneBy(['clanek' => $clanek->getId()]);
-            //echo gettype($verze);
             array_push($clanek_verze, $verze);
         }
 
