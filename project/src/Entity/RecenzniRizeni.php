@@ -26,7 +26,7 @@ class RecenzniRizeni
     #[ORM\Column(length: 10)]
     private ?string $do = null;
 
-    #[ORM\OneToMany(mappedBy: 'id_recenzni_rizeni', targetEntity: Clanek::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'recenzni_rizeni', targetEntity: Clanek::class, orphanRemoval: true)]
     private Collection $clanky;
 
     public function __construct()
