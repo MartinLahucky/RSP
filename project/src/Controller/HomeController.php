@@ -2,7 +2,11 @@
 
 namespace App\Controller;
 
+
 use App\Entity\Clanek;
+use App\Entity\RecenzniRizeni;
+use App\Entity\Tisk;
+use App\Entity\VerzeClanku;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,21 +16,56 @@ use Symfony\Component\Mime\Email;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Role;
 use App\Entity\User;
-use App\Entity\Tisk;
-use App\Entity\RecenzniRizeni;
-use App\Entity\VerzeClanku;
 use App\Form\ClanekFormType;
 use App\Form\RecenzniRizeniFormType;
 use App\Form\TiskFormType;
 use DateTime;
 
 class HomeController extends AbstractController
+
 {
     #[Route('/home', name: 'app_home')]
-    public function index(): Response
+    public function index(ManagerRegistry $doctrine): Response
     {
-        return $this->render('home/index.html.twig', [
-            'controller_name' => 'Kernel',
+        $manager = $doctrine->getManager();
+        $clanky = $manager->getRepository(Clanek::class)->findBy(['stav_autor' => \App\Entity\StavAutor::PRIJATO]);
+        if (!$clanky) {
+            return new Response("Žádné články k zobrazení");
+        }
+
+        // Nacist datumy vydani (tisku) a soubory clanku
+        $datumy = array();
+        $verze_clanku = array();
+        $soubory = array();
+        foreach ($clanky as $clanek)
+        {
+            $recenzni_rizeni = $manager->getRepository(RecenzniRizeni::class)->findOneBy(['id' => $clanek->getRecenzniRizeni()]);
+            if (!$recenzni_rizeni) {
+                return new Response("Chyba načítání článků");
+            }
+
+            $tisk = $manager->getRepository(Tisk::class)->findOneBy(['id' => $recenzni_rizeni->getTisk()]);
+            if (!$tisk) {
+                return new Response("Chyba načítání článků");
+            }
+
+            $verze =
+                $manager->getRepository(VerzeClanku::class)->findBy(['clanek' => $clanek->getId()]);
+            if (!$verze) {
+                return new Response("Chyba načítání článků");
+            }
+
+            array_push($datumy, $tisk->getDatum());
+            array_push($verze_clanku, $verze[count($verze) - 1]);
+            array_push($soubory, $verze[count($verze) - 1]->getSouborClanek());
+        }
+
+        return $this->render('home/index.html.twig',
+        [
+            'clanky' => $clanky,
+            'datumy' => $datumy,
+            'verze_clanku' => $verze_clanku,
+            'soubory' => $soubory,
         ]);
     }
 
