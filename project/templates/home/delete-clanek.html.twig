@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <div class="row justify-content-center">
+        <div class="col-auto">
+        <table class="table table-bordered">
+        <thead>
+            <tr>
+            <th scope="col">Název</th>
+            <th scope="col">Od - Do</th>
+            <th scope="col">Stav autora</th>
+            <th scope="col">Stav redakce</th>
+            <th scope="col">Autor</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <th scope="row"> {{ clanek.getNazevClanku() }} </th> 
+            <td> {{ clanek.getRecenzniRizeni().getOd()}} - {{clanek.getRecenzniRizeni().getDo()}} </td>
+            <td> {{ clanek.getStavRedakce()}}</td>
+            <td> {{ clanek.getStavAutor() }}</td>
+            <td> {{ clanek.getUser().getUserIdentifier() }}</td>
+            </tr>
+        </tbody>
+        </table>
+        <br>
+        <form action="{{ path('app_delete_clanek', {'id': clanek.getId() }) }}" method="post">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ clanek.getId() ) }}">
+            <button type="submit" class="btn btn-primary">Delete</button>    
+        </form>
+        <br>
+            <button class="btn btn-primary" onclick="window.history.back();">Go Back</button>
+        </div>
+    </div>
+
+{% endblock %}
+

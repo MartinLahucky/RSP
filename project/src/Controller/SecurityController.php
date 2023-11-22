@@ -18,9 +18,36 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Role\Role as RoleRole;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class SecurityController extends AbstractController
 {
+    #[Route(path: '/download', name: 'app_download')]
+    public function download(Request $request)
+    {
+        $clanek = $request->query->get('clanek');
+        $verze = $request->query->get('verze');
+        $soubor = $request->query->get('soubor');
+
+        // Assume the file is stored in the web/uploads directory
+        $path = $this->getParameter('public_dir') . '/clanky/' . $clanek . '/' . $verze . '/' . $soubor;
+        $file_ext = pathinfo($path, PATHINFO_EXTENSION);
+        $file_name = 'clanek.' . $file_ext;
+
+        // Create a BinaryFileResponse instance
+        $response = new BinaryFileResponse($path);
+
+        // Set the filename and the disposition
+        $response->setContentDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $file_name
+        );
+
+        // Return the response
+        return $response;
+    }
+
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {

@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <div class="row justify-content-center">
+        <div class="col-auto">
+        <table class="table table-bordered">
+        <thead>
+            <tr>
+            <th scope="col">Od</th>
+            <th scope="col">Do</th>
+            <th scope="col">Tisk Id</th>
+            <th scope="col">Tisk Datum</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <th scope="row"> {{ rr.getOd() }} </th> 
+            <td> {{ rr.getDo() }} </td>
+            <td> {{ rr.getTisk().getId() }}</td>
+            <td> {{ rr.getTisk().getDatum() }}</td>
+            </tr>
+        </tbody>
+        </table>
+        <br>
+        <form action="{{ path('app_delete_recenzni_rizeni', {'id': rr.getId() }) }}" method="post">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ rr.getId() ) }}">
+            <button type="submit" class="btn btn-primary">Delete</button>    
+        </form>
+        <br>
+            <button class="btn btn-primary" onclick="window.history.back();">Go Back</button>
+        </div>
+    </div>
+
+{% endblock %}
+
