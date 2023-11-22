@@ -22,7 +22,7 @@
          {% for i in 0..(clanky|length - 1) %}
          <tr>
              <td> {{ clanek_verze[i].getDatumNahrani() }} </td>
-           <td> {{ clanek_verze[i].getSouborClanek() }} </td>
+            <td> {{ clanky[i].getNazevClanku() }} </td>
            <td> {{ clanky[i].getStavAutor() }}</td>
            <td>
                 <a class="btn btn-primary" href="{{ path('app_author_article_detail', {'clanek_id': clanky[i].getId() }) }}">Zobrazit</a>
@@ -30,7 +30,6 @@
          </tr>
         {% endfor %}
         </tbody>
-        </table>
-
+    </table>
 </div>
 {% endblock %}

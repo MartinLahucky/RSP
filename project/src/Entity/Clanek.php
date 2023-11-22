@@ -5,29 +5,29 @@ namespace App\Entity;
 use App\Repository\ClanekRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-enum StavAutor: int
+enum StavAutor: string
 {
-    case PODANO = 0;
-    case TEMATICKA_NEVHODNOST = 1;
-    case PREDANO_RECENZENTUM = 2;
-    case ZAMITNUTO = 3;
-    case PRIJATO_S_VYHRADAMI = 4;
-    case OPRAVA_AUTORA = 5;
-    case DODATECNE_VYJADRENI_AUTORA = 6;
-    case VYJADRENI_SEFREDAKTORA = 7;  // Cekani na vyjadreni od sefredaktora
-    case PRIJATO = 8;
+    case PODANO = "PODANO"; // svetle modra
+    case TEMATICKA_NEVHODNOST = "TEMATICKA NEVHODNOST"; // červena
+    case PREDANO_RECENZENTUM = "PREDANO RECENZENTUM"; //zluta
+    case ZAMITNUTO = "ZAMITNUTO"; //cerna
+    case PRIJATO_S_VYHRADAMI = "PRIJATO S VYHRADAMI"; //zlutozelena
+    case OPRAVA_AUTORA = "OPRAVA AUTORA"; //ruzova
+    case DODATECNE_VYJADRENI_AUTORA = "DODATECNE VYJADRENI AUTORA"; //fialová
+    case VYJADRENI_SEFREDAKTORA = "CEKANI NA VYJADRENI SEFREDAKTORA"; //tyrkysova
+    case PRIJATO = "PRIJATO"; //zelena
 }
 
-enum StavRedakce: int
+enum StavRedakce: string
 {
-    case NOVE_PODANY = 0;
-    case CEKA_NA_STANOVENI_RECENZENTU = 1;
-    case POSUDEK_1_DORUCEN = 2;
-    case POSUDEK_2_DORUCEN = 3;
-    case POSUDKY_ODESLANY_AUTOROVI = 4;
-    case UPRAVA_TEXTU_AUTOREM = 5;
-    case PRIJATO = 6;
-    case ZAMITNUTO = 7;
+    case NOVE_PODANY = "NOVE PODANY";
+    case CEKA_NA_STANOVENI_RECENZENTU = "CEKA NA STANOVENI RECENZENTU";
+    case POSUDEK_1_DORUCEN = "POSUDEK 1 DORUCEN";
+    case POSUDEK_2_DORUCEN = "POSUDEK 2 DORUCEN";
+    case POSUDKY_ODESLANY_AUTOROVI = "POSUDKY ODESLANY AUTOROVI";
+    case UPRAVA_TEXTU_AUTOREM = "UPRAVA TEXTU AUTOREM";
+    case PRIJATO = "PRIJATO";
+    case ZAMITNUTO = "ZAMITNUTO";
 }
 
 #[ORM\Entity(repositoryClass: ClanekRepository::class)]
@@ -42,11 +42,14 @@ class Clanek
     #[ORM\JoinColumn(nullable: false)]
     private ?RecenzniRizeni $recenzni_rizeni = null;
 
-    #[ORM\Column]
-    private ?int $stav_redakce = null;
+    #[ORM\Column(length: 50)]
+    private ?string $stav_redakce = null;
 
-    #[ORM\Column]
-    private ?int $stav_autor = null;
+    #[ORM\Column(length: 50)]
+    private ?string $stav_autor = null;
+
+    #[ORM\Column(length: 50)]
+    private ?string $nazev_clanku = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -57,48 +60,60 @@ class Clanek
         return $this->id;
     }
 
-    public function getIdRecenzniRizeni(): ?RecenzniRizeni
+    public function getRecenzniRizeni(): ?RecenzniRizeni
     {
         return $this->recenzni_rizeni;
     }
 
-    public function setIdRecenzniRizeni(?RecenzniRizeni $recenzni_rizeni): static
+    public function setRecenzniRizeni(?RecenzniRizeni $recenzni_rizeni): static
     {
         $this->recenzni_rizeni = $recenzni_rizeni;
 
         return $this;
     }
 
-    public function getStavRedakce(): ?int
+    public function getStavRedakce(): ?string
     {
         return $this->stav_redakce;
     }
 
-    public function setStavRedakce(int $stav_redakce): static
+    public function setStavRedakce(string $stav_redakce): static
     {
         $this->stav_redakce = $stav_redakce;
 
         return $this;
     }
 
-    public function getStavAutor(): ?int
+    public function getNazevClanku(): ?string
+    {
+        return $this->nazev_clanku;
+    }
+
+    public function setNazevClanku(string $nazev_clanku): static
+    {
+        $this->nazev_clanku = $nazev_clanku;
+
+        return $this;
+    }
+
+    public function getStavAutor(): ?string
     {
         return $this->stav_autor;
     }
 
-    public function setStavAutor(int $stav_autor): static
+    public function setStavAutor(string $stav_autor): static
     {
         $this->stav_autor = $stav_autor;
 
         return $this;
     }
 
-    public function getUserId(): ?User
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUserId(?User $user): static
+    public function setUser(?User $user): static
     {
         $this->user = $user;
 
