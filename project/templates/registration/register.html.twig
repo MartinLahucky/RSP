@@ -2,11 +2,11 @@
 
 {% extends 'base.html.twig' %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Registrace{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
-        <h1>Register</h1>
+        <h1>Registrace</h1>
 
         {{ form_errors(registrationForm) }}
 
@@ -18,18 +18,30 @@
             </div>
 
             <div class="form-group">
-                {{ form_label(registrationForm.plainPassword, 'Password') }}
+                {{ form_label(registrationForm.firstname, 'Jméno') }}
+                {{ form_widget(registrationForm.firstname, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(registrationForm.firstname) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(registrationForm.lastname, 'Příjmení') }}
+                {{ form_widget(registrationForm.lastname, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(registrationForm.lastname) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(registrationForm.plainPassword, 'Heslo') }}
                 {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control'}}) }}
                 {{ form_errors(registrationForm.plainPassword) }}
             </div>
 
             <div class="form-group form-check">
                 {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
-                {{ form_label(registrationForm.agreeTerms) }}
+                {{ form_label(registrationForm.agreeTerms, 'Příjmout podmínky užití') }}
                 {{ form_errors(registrationForm.agreeTerms) }}
             </div>
 
-            <button type="submit" class="btn btn-primary">Register</button>
+            <button type="submit" class="btn btn-primary">Registrovat</button>
         {{ form_end(registrationForm) }}
     </div>
 {% endblock %}

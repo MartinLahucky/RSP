@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}Přihlášení!{% endblock %}
 
 {% block body %}
 <!--
@@ -8,12 +8,41 @@
     {% if error %}
         <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
     {% endif %}
+<div class="container h-100">
+    <div class="row align-self-center w-100">
+        <div class="col-md-6 mx-auto">
+            <form method="post" class="form-signin">
+                {% if error %}
+                            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                {% endif %}
 
-    {% if app.user %}
-        <div class="mb-3">
-            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+                {% if app.user %}
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="mb-3 alert alert-secondary text-center">
+                            Jste přihlášen jako <b>{{ app.user.userIdentifier }}</b> <a href="{{ path('app_logout') }}">Odhlásit</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+
+                <h1 class="h3 mb-3 font-weight-normal text-center">Prosím přihlaste se</h1>
+                <div class="form-group">
+                    <label for="inputEmail">Email</label>
+                    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword">Heslo</label>
+                    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+                </div>
+
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Přihlášení</button>
+                {% endif %}
+            </form>
         </div>
-    {% endif %}
+    
 
     <h1 class="h3 mb-3 font-weight-normal">Please sign in here </h1>
     <label for="inputEmail">Email</label>
@@ -62,4 +91,6 @@
         </div>
   </div>
 </footer>
+    </div>
+</div>
 {% endblock %}
