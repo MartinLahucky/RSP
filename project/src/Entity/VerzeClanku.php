@@ -27,8 +27,6 @@ class VerzeClanku
     #[ORM\Column]
     private ?bool $zpristupnen_recenzentum = null;
 
-    private string $datum_nahrani_str;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -80,11 +78,5 @@ class VerzeClanku
         $this->zpristupnen_recenzentum = $zpristupnen_recenzentum;
 
         return $this;
-    }
-
-    public function convertDateToString(): void
-    {
-        $format = 'Y-m-d';
-        $this->datum_nahrani_str = $this->datum_nahrani->format($format);
     }
 }
