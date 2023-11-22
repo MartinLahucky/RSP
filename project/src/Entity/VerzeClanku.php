@@ -18,8 +18,8 @@ class VerzeClanku
     #[ORM\JoinColumn(nullable: false)]
     private ?Clanek $clanek = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $datum_nahrani = null;
+    #[ORM\Column(length: 10)]
+    private ?string $datum_nahrani = null;
 
     #[ORM\Column(length: 1000)]
     private ?string $soubor_clanek = null;
@@ -44,12 +44,12 @@ class VerzeClanku
         return $this;
     }
 
-    public function getDatumNahrani(): ?\DateTimeInterface
+    public function getDatumNahrani(): ?string
     {
         return $this->datum_nahrani;
     }
 
-    public function setDatumNahrani(\DateTimeInterface $datum_nahrani): static
+    public function setDatumNahrani(string $datum_nahrani): static
     {
         $this->datum_nahrani = $datum_nahrani;
 
