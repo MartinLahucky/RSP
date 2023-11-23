@@ -2,6 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Clanek;
+use App\Entity\KomentarClanek;
+use App\Entity\Namitka;
+>>>>>>> 25649c8 (Upraveni downloadu. Dodelani zobrazeni namitky pro clanek.)
 use App\Entity\Role;
 use App\Entity\User;
 use App\Form\UserRolesFormType;
@@ -27,8 +31,7 @@ class SecurityController extends AbstractController
 
         // Assume the file is stored in the web/uploads directory
         $path = $this->getParameter('public_dir') . '/clanky/' . $clanek . '/' . $verze . '/' . $soubor;
-        $file_ext = pathinfo($path, PATHINFO_EXTENSION);
-        $file_name = 'clanek.' . $file_ext;
+        $file_name = basename($path);
 
         // Create a BinaryFileResponse instance
         $response = new BinaryFileResponse($path);
@@ -274,11 +277,15 @@ class SecurityController extends AbstractController
         // Nacteni komentaru
         $komentare = $manager->getRepository(KomentarClanek::class)->findBy(['verze_clanku' => $verze_clanku->getId()]);
 
+        // Nacteni namitky
+        $namitka = $manager->getRepository(Namitka::class)->findOneBy(['clanek' => $verze_clanku->getClanek()]);
+
         // TODO: Ve twigu chybi textove pole pro vytvoreni noveho komentare
         return $this->render('security/article-comments.html.twig',
         [
             'clanek_verze' => $verze_clanku,
             'komentare' => $komentare,
+            'namitka' => $namitka,
         ]);
     }
 
@@ -288,5 +295,19 @@ class SecurityController extends AbstractController
     {
         // TODO: Dodelat pak v jinem user story
         return new Response("neimplementovano");
+    }
+
+    #[Route(path: '/show-namitka/{namitka_id}', name: 'app_show_namitka')]
+    public function zobrazNamitku(ManagerRegistry $doctrine, $namitka_id): Response
+    {
+        $namitka = $doctrine->getManager()->getRepository(Namitka::class)->find($namitka_id);
+        if (!$namitka) {
+            return new Response("Chyba nacitani namitky");
+        }
+
+        return $this->render('security/show-namitka.html.twig',
+        [
+            'namitka' => $namitka,
+        ]);
     }
 }
