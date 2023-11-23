@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\Clanek;
 use App\Entity\KomentarClanek;
 use App\Entity\Namitka;
->>>>>>> 25649c8 (Upraveni downloadu. Dodelani zobrazeni namitky pro clanek.)
 use App\Entity\Role;
 use App\Entity\User;
 use App\Form\UserRolesFormType;
