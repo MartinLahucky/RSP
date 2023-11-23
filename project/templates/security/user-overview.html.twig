@@ -8,6 +8,33 @@
     .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
 </style>
 
+
+
+<div class="container kontejner">
+{% for user in users %}
+        <div class="card m-3 rad-25" style="width: 18rem;">
+
+        <div class="card-header bg-red">
+          <h5 class="white rad-25 text-center">{{user.getFirstName()}}</h5>
+        </div>
+
+        <div class="card-body d-flex flex-column">
+          <h5 class="">ID: {{user.getId()}}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{user.getEmail()}}</h6> 
+          <p class="card-text" style="display: flex; flex-wrap: wrap;">
+            {% for role in user.getRoles() %}
+                <span class="rad-25 p-2 bg-red white m-1">{{role}}</span>
+            {% endfor %}
+          </p>
+          <div class="mt-auto d-flex justify-content-between">
+          <a href="{{ path('app_select_role', {'id': user.getId() }) }}" class="card-link btn btn-primary w-50 bg-red-soft">Edit</a>
+          <a href="#" class="card-link w-50">Delete (todo)</a>
+        </div>
+        </div>
+      </div>
+{% endfor %}
+</div>
+{#
 <div class="example-wrapper">
     <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;" >
         <thead class="shadow-sm">
@@ -43,4 +70,5 @@
         </table>
 
 </div>
+#}
 {% endblock %}
