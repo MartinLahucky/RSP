@@ -9,27 +9,40 @@
 </style>
 
 <div class="example-wrapper">
-    {# Clanek: <a href="{{ path('app_download_file')}}">{{ clanek_verze.getSouborClanek() }}</a><br/> #}
     <div>
-        Clanek: <a href="#">{{ clanek_verze.getSouborClanek() }}</a><br/>
+        Clanek: <a href="{{ path('app_download', {'clanek': clanek_verze.getClanek().getId(), 'verze': clanek_verze.getId(), 'soubor': clanek_verze.getSouborClanek() }) }}">{{ clanek_verze.getSouborClanek() }}</a><br/>
         Datum: {{ clanek_verze.getDatumNahrani() }}<br/>
+        Namitka:
+        {% if namitka == null %}
+            <i>Zadna</i>
+        {% else %}
+            <a href="{{ path('app_show_namitka', {'namitka_id': namitka.getId()}) }}">Zobrazit</a>
+        {% endif %}
     </div><br/>
 
-    <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;" >
-        <thead class="shadow-sm">
-        <tr>
-            <th>Uzivatel</th>
-            <th>Komentar</th>
-        </tr>
-        </thead>
-         <tbody>
-         {% for komentar in komentare %}
-         <tr>
-            <td> {{ komentar.getUser().getFirstName() }} {{ komentar.getUser().getLastName() }}</td>
-            <td> {{ komentar.getText() }} </td>
-         </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <h2>Komentare</h2>
+    {% if komentare == null %}
+        <i>Zadne komentare</i>
+    {% else %}
+        <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;" >
+            <thead class="shadow-sm">
+            <tr>
+                <th>Uzivatel</th>
+                <th>Komentar</th>
+            </tr>
+            </thead>
+             <tbody>
+             {% for komentar in komentare %}
+             <tr>
+                <td>
+                    {{ komentar.getUser().getFirstName() }} {{ komentar.getUser().getLastName() }}<br/>
+                    <small><i>{{ komentar.getUser().getUserIdentifier() }}</i></small>
+                </td>
+                <td> {{ komentar.getText() }} </td>
+             </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 </div>
 {% endblock %}
