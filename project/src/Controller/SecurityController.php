@@ -7,6 +7,7 @@ use App\Entity\KomentarClanek;
 use App\Entity\Namitka;
 use App\Entity\Role;
 use App\Entity\User;
+use App\Entity\VerzeClanku;
 use App\Form\UserRolesFormType;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

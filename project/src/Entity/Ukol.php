@@ -23,8 +23,8 @@ class Ukol
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'ukoly')]
     private Collection $user;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $deadline = null;
+    #[ORM\Column(length: 10)]
+    private ?string $deadline = null;
 
     public function __construct()
     {
@@ -72,12 +72,11 @@ class Ukol
         return $this;
     }
 
-    public function getDeadline(): ?\DateTimeInterface
-    {
+    public function getDeadline(): ?string    {
         return $this->deadline;
     }
 
-    public function setDeadline(\DateTimeInterface $deadline): static
+    public function setDeadline(string $deadline): static
     {
         $this->deadline = $deadline;
 
