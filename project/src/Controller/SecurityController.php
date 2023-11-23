@@ -10,9 +10,7 @@ use App\Entity\User;
 use App\Entity\VerzeClanku;
 use App\Form\UserRolesFormType;
 use Doctrine\Persistence\ManagerRegistry;
-use phpDocumentor\Reflection\Types\Array_;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -179,6 +177,7 @@ class SecurityController extends AbstractController
             'users' => $users
         ]);
     }
+    
 
 
     #[Route(path: '/author-articles-overiew', name: 'app_author_articles_overview')]

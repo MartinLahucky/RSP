@@ -72,8 +72,7 @@ class Ukol
         return $this;
     }
 
-    public function getDeadline(): ?string
-    {
+    public function getDeadline(): ?string    {
         return $this->deadline;
     }
 
