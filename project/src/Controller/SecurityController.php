@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Role\Role as RoleRole;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 class SecurityController extends AbstractController
 {
     #[Route(path: '/download', name: 'app_download')]
-    public function download(Request $request)
+    public function download(Request $request): BinaryFileResponse
     {
         $clanek = $request->query->get('clanek');
         $verze = $request->query->get('verze');
@@ -180,7 +180,7 @@ class SecurityController extends AbstractController
     
 
 
-    #[Route(path: '/author-articles-overiew', name: 'app_author_articles_overview')]
+    #[Route(path: '/author-articles-overview', name: 'app_author_articles_overview')]
     public function authorArticlesOverviw(ManagerRegistry $doctrine): Response
     {
         // Zkontroluje prava
@@ -232,17 +232,7 @@ class SecurityController extends AbstractController
 
         // Nacteni verzi clanku
         $manager = $doctrine->getManager();
-        $user = $manager->getRepository(User::class)->findOneBy(['email' => $this->getUser()->getUserIdentifier()]);
-        if (!$user){
-            return new Response('Uzivatel nenalezen');
-        }
-
-        $clanek = $manager->getRepository(Clanek::class)->findOneBy(['user' => $user->getId()]);
-        if (!$clanek) {
-            return new Response('Nebyly nalezeny zadne clanky');
-        }
-
-        $verze_clanku = $manager->getRepository(VerzeClanku::class)->findBy(['clanek' => $clanek->getId()]);
+        $verze_clanku = $manager->getRepository(VerzeClanku::class)->findBy(['clanek' => $clanek_id]);
         if (!$verze_clanku) {
             return new Response('Nebyly nalezeny zadne verze clanku');
         }

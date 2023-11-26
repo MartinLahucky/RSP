@@ -20,6 +20,10 @@ use App\Form\ClanekFormType;
 use App\Form\RecenzniRizeniFormType;
 use App\Form\TiskFormType;
 use DateTime;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Filesystem\Filesystem;
+
 
 class HomeController extends AbstractController
 
@@ -329,30 +333,78 @@ class HomeController extends AbstractController
             throw $this->createAccessDeniedException("lol nemáš práva xD");
         }
 
-        if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
+        if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles())) {
             throw $this->createAccessDeniedException("lol nemáš práva xD");
         }
         // Create a new empty Clanek entity
         $clanek = new Clanek();
+        $verze_clanek = new VerzeClanku();
 
         // Create the form for the Tisk entity
-        $form = $this->createForm(ClanekFormType::class, $clanek);
+        $form = $this->createForm(ClanekFormType::class);
 
         // Handle the request
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $soubor = $form->get('file')->getData();
 
-            $clanek = $form->getData();
+            $clanek->setNazevClanku($form->get('nazev_clanku')->getData());
+            $clanek->setStavAutor(\App\Entity\StavAutor::PODANO->value);
+            $clanek->setStavRedakce(\App\Entity\StavRedakce::NOVE_PODANY->value);
+            $clanek->setUser($this->getUser());
+
+            $recenzni_rizeni = $doctrine->getManager()->getRepository(RecenzniRizeni::class)->findAll();
+            if (!$recenzni_rizeni) {
+                return new Response("Momentalne neni aktivni zadne recenzni rizeni");
+            }
+
+            // Nalezeni recenzniho (prvniho a jedineho) aktivniho rizeni
+            // TODO: Mozna by se dalo zjenodusit tim, ze by se v DB vytvoril novy atribut, ktery by urcoval zda je dane recenzni rizeni jiz uzavreno nebo ne?????
+            $current_time = strtotime(date('d.m.Y'));
+            $valid_rc = null;
+            foreach ($recenzni_rizeni as $rc)
+            {
+                $datum_rc = strtotime($rc->getOd());
+                if ($datum_rc <= $current_time)
+                {
+                    $valid_rc = $rc;
+                    break;
+                }
+            }
+
+            if (!$valid_rc) {
+                return new Response("Momentalne neni aktivni zadne recenzni rizeni");
+            }
+            $clanek->setRecenzniRizeni($valid_rc);
+
+            $verze_clanek->setClanek($clanek);
+            $verze_clanek->setDatumNahrani(date('d.m.Y'));
+            $verze_clanek->setSouborClanek($soubor->getClientOriginalName());
+            $verze_clanek->setZpristupnenRecenzentum(false);
 
             // Get the entity manager
             $em = $doctrine->getManager();
 
             // Persist the new user entity
             $em->persist($clanek);
+            $em->persist($verze_clanek);
 
             // Flush to save the new user entity to the database
             $em->flush();
+
+            // Ulozeni clanku
+            {
+                $public_dir = $this->getParameter('public_dir');
+                $dir_path_clanek = $public_dir . '/clanky/' . $clanek->getId();
+                $dir_path_verze = $dir_path_clanek . '/' . $verze_clanek->getId();
+
+                $fs = new Filesystem();
+                $fs->mkdir($dir_path_clanek);
+                $fs->mkdir($dir_path_verze);
+                $soubor->move($dir_path_verze, $soubor->getClientOriginalName());
+            }
 
             // Redirect to the home page or any other page
             return $this->redirectToRoute('app_home');

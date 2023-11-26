@@ -28,6 +28,7 @@
             <thead class="shadow-sm">
             <tr>
                 <th>Uzivatel</th>
+                <th>Datum</th>
                 <th>Komentar</th>
             </tr>
             </thead>
@@ -38,6 +39,7 @@
                     {{ komentar.getUser().getFirstName() }} {{ komentar.getUser().getLastName() }}<br/>
                     <small><i>{{ komentar.getUser().getUserIdentifier() }}</i></small>
                 </td>
+                 <td>{{ komentar.getDatum() }}</td>
                 <td> {{ komentar.getText() }} </td>
              </tr>
             {% endfor %}
