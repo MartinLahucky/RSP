@@ -436,6 +436,13 @@ class HomeController extends AbstractController
             // Get the entity manager
             $em = $doctrine->getManager();
 
+            // Smazani clanku (souboru) ulozeneho na serveru
+            {
+                $path = $this->getParameter('public_dir') . '/clanky/' . $clanek->getId();
+                $fs = new Filesystem();
+                $fs->remove($path);
+            }
+
             // Remove the new tisk entity
             $em->remove($clanek);
 
