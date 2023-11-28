@@ -124,6 +124,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function isAdmin(): bool
+    {
+        // Assuming $this->roles is an array of Role enum objects
+        foreach ($this->roles as $role) {
+            if ($role === "ADMIN") {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * @see PasswordAuthenticatedUserInterface
      */
