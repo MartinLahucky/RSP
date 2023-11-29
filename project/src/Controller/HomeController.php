@@ -4,8 +4,13 @@ namespace App\Controller;
 
 
 use App\Entity\Clanek;
+use App\Entity\KomentarClanek;
+use App\Entity\KomentarUkol;
+use App\Entity\Namitka;
+use App\Entity\Posudek;
 use App\Entity\RecenzniRizeni;
 use App\Entity\Tisk;
+use App\Entity\Ukol;
 use App\Entity\VerzeClanku;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -78,11 +83,11 @@ class HomeController extends AbstractController
     {   
         if ($this->getUser()==null) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         // Create a new empty Tisk entity
         $tisk = new Tisk();
@@ -125,11 +130,11 @@ class HomeController extends AbstractController
     {   
         if ($this->getUser()==null) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         // Find Tisk entity
         $tisk = $doctrine->getManager()->getRepository(Tisk::class)->find($id); 
@@ -172,20 +177,38 @@ class HomeController extends AbstractController
     {   
         if ($this->getUser()==null) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         // Find Tisk entity
-        $tisk = $doctrine->getManager()->getRepository(Tisk::class)->find($id); 
+        $tisk = $doctrine->getManager()->getRepository(Tisk::class)->find($id);
+        if (!$tisk) {
+            return new Response("Chyba nacitani tisku");
+        }
 
         if ($this->isCsrfTokenValid('delete'.$tisk->getId(), $request->request->get('_token'))) 
         {
 
             // Get the entity manager
             $em = $doctrine->getManager();
+
+            // Nejdrive smazat vsechno co odkazuje na recenzni rizeni
+            $rr = $em->getRepository(RecenzniRizeni::class)->findBy(['tisk' => $tisk]);
+            if (!$rr) {
+                return new Response("Chyba nacitani recenzniho rizeni");
+            }
+
+            $clanky = $em->getRepository(Clanek::class)->findBy(['recenzni_rizeni' => $rr]);
+            if ($clanky)
+            {
+                foreach ($clanky as $clanek)
+                {
+                    $this->smazatClanek($clanek, $doctrine);
+                }
+            }
 
             // Remove the new tisk entity
             $em->remove($tisk);
@@ -209,11 +232,11 @@ class HomeController extends AbstractController
     {   
         if ($this->getUser()==null) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         // Create a new empty Tisk entity
         $rr = new RecenzniRizeni();
@@ -252,11 +275,11 @@ class HomeController extends AbstractController
     {   
         if ($this->getUser()==null) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         // Find Tisk entity
         $rr = $doctrine->getManager()->getRepository(RecenzniRizeni::class)->find($id); 
@@ -294,20 +317,33 @@ class HomeController extends AbstractController
     {   
         if ($this->getUser()==null) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         // Find Tisk entity
-        $rr = $doctrine->getManager()->getRepository(RecenzniRizeni::class)->find($id); 
+        $rr = $doctrine->getManager()->getRepository(RecenzniRizeni::class)->find($id);
+        if (!$rr) {
+            return new Response("Chyba nacitani recenzniho rizeni!");
+        }
 
         if ($this->isCsrfTokenValid('delete'.$rr->getId(), $request->request->get('_token'))) 
         {
 
             // Get the entity manager
             $em = $doctrine->getManager();
+
+            // Nejdrive smazat vsechno co odkazuje na recenzni rizeni
+            $clanky = $em->getRepository(Clanek::class)->findBy(['recenzni_rizeni' => $rr]);
+            if ($clanky)
+            {
+                foreach ($clanky as $clanek)
+                {
+                    $this->smazatClanek($clanek, $doctrine);
+                }
+            }
 
             // Remove the new tisk entity
             $em->remove($rr);
@@ -330,11 +366,11 @@ class HomeController extends AbstractController
     {   
         if ($this->getUser()==null) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles())) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         // Create a new empty Clanek entity
         $clanek = new Clanek();
@@ -416,37 +452,101 @@ class HomeController extends AbstractController
         ]);
     }
 
+    // Smazani vsech radku v ostatnich entitach, ktere odkazuji na konkretni clanek
+    private function smazatClanek(Clanek &$clanek, ManagerRegistry &$doctrine): void
+    {
+        $em = $doctrine->getManager();
+
+        // Smazani posudku clanku
+        $posudky = $em->getRepository(Posudek::class)->findBy(['clanek' => $clanek->getId()]);
+        if ($posudky)
+        {
+            foreach ($posudky as $posudek)
+            {
+                $em->remove($posudek);
+            }
+        }
+
+        // Smazani namitky
+        $namitka = $em->getRepository(Namitka::class)->findOneBy(['clanek' => $clanek->getId()]);
+        if ($namitka)
+        {
+            $em->remove($namitka);
+        }
+
+        // Smazani komentaru k ukolu a samotny ukol
+        $ukol = $em->getRepository(Ukol::class)->findOneBy(['clanek' => $clanek->getId()]);
+        if ($ukol)
+        {
+            // Nacist vsechny komentare k ukolu
+            $komentare_ukol = $em->getRepository(KomentarUkol::class)->findBy(['ukol' => $ukol->getId()]);
+            if ($komentare_ukol)
+            {
+                foreach ($komentare_ukol as $ku)
+                {
+                    $em->remove($ku);
+                }
+            }
+
+            $em->remove($ukol);
+        }
+
+        // TODO: Kdyz nemam komentare tak funguje mazani verzi ale kdyz mam komentare tak nejde????
+        // Smazani komentaru clanku a verzi clanku
+        $verze_clanku = $em->getRepository(VerzeClanku::class)->findBy(['clanek' => $clanek->getId()]);
+        if ($verze_clanku)
+        {
+            foreach ($verze_clanku as $vc)
+            {
+                // Nacist komentare k dane verzi clanku
+                $komentare_clanek = $em->getRepository(KomentarClanek::class)->findBy(['verze_clanku' => $vc->getId()]);
+                if ($komentare_clanek)
+                {
+                    foreach ($komentare_clanek as $kc)
+                    {
+                        $em->remove($kc);
+                    }
+                }
+
+                $em->remove($vc);
+            }
+        }
+
+        // Smazani clanku (souboru) ulozeneho na serveru
+        {
+            $path = $this->getParameter('public_dir') . '/clanky/' . $clanek->getId();
+            $fs = new Filesystem();
+            $fs->remove($path);
+        }
+
+        $em->remove($clanek);
+    }
+
     #[Route(path: '/delete-clanek/{id}', name: 'app_delete_clanek')]
     public function deleteClanek(Request $request, ManagerRegistry $doctrine, $id): Response
     {   
         if ($this->getUser()==null) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
+
         // Create a new empty Clanek entity
-        $clanek = $doctrine->getManager()->getRepository(Clanek::class)->find($id); 
+        $clanek = $doctrine->getManager()->getRepository(Clanek::class)->find($id);
+        if (!$clanek) {
+            return new Response("Chyba nacitani clanku!");
+        }
 
         if ($this->isCsrfTokenValid('delete'.$clanek->getId(), $request->request->get('_token'))) 
         {
-
             // Get the entity manager
             $em = $doctrine->getManager();
 
-            // Smazani clanku (souboru) ulozeneho na serveru
-            {
-                $path = $this->getParameter('public_dir') . '/clanky/' . $clanek->getId();
-                $fs = new Filesystem();
-                $fs->remove($path);
-            }
-
-            // Remove the new tisk entity
-            $em->remove($clanek);
-
-            // Flush to save the new tisk entity to the database
+            // Smazani vsech radku v ostatnich entitach, ktere odkazuji na konkretni clanek
+            $this->smazatClanek($clanek, $doctrine);
             $em->flush();
 
             // Redirect to the home page or any other page
@@ -458,6 +558,4 @@ class HomeController extends AbstractController
             'clanek' => $clanek,
         ]);
     }
-
-
 }
