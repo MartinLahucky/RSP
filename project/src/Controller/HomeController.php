@@ -28,7 +28,7 @@ use DateTime;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Filesystem\Filesystem;
-
+use Symfony\Component\String\UnicodeString;
 
 class HomeController extends AbstractController
 
@@ -38,9 +38,6 @@ class HomeController extends AbstractController
     {
         $manager = $doctrine->getManager();
         $clanky = $manager->getRepository(Clanek::class)->findBy(['stav_autor' => \App\Entity\StavAutor::PRIJATO]);
-        if (!$clanky) {
-            return new Response("Žádné články k zobrazení");
-        }
 
         // Nacist datumy vydani (tisku) a soubory clanku
         $datumy = array();
@@ -186,7 +183,7 @@ class HomeController extends AbstractController
         // Find Tisk entity
         $tisk = $doctrine->getManager()->getRepository(Tisk::class)->find($id);
         if (!$tisk) {
-            return new Response("Chyba nacitani tisku");
+            return new Response("Chyba nacitani tisku!");
         }
 
         if ($this->isCsrfTokenValid('delete'.$tisk->getId(), $request->request->get('_token'))) 
@@ -196,24 +193,23 @@ class HomeController extends AbstractController
             $em = $doctrine->getManager();
 
             // Nejdrive smazat vsechno co odkazuje na recenzni rizeni
-            $rr = $em->getRepository(RecenzniRizeni::class)->findBy(['tisk' => $tisk]);
-            if (!$rr) {
-                return new Response("Chyba nacitani recenzniho rizeni");
-            }
-
-            $clanky = $em->getRepository(Clanek::class)->findBy(['recenzni_rizeni' => $rr]);
-            if ($clanky)
+            $rr = $em->getRepository(RecenzniRizeni::class)->findOneBy(['tisk' => $tisk->getId()]);
+            if ($rr)
             {
-                foreach ($clanky as $clanek)
-                {
-                    $this->smazatClanek($clanek, $doctrine);
+                $clanky = $em->getRepository(Clanek::class)->findBy(['recenzni_rizeni' => $rr->getId()]);
+                if ($clanky) {
+                    foreach ($clanky as $clanek) {
+                        $this->smazatClanek($clanek, $doctrine);
+                    }
                 }
+
+                // Smazat recenzni rizeni
+                $em->remove($rr);
+                $em->flush();
             }
 
             // Remove the new tisk entity
             $em->remove($tisk);
-
-            // Flush to save the new tisk entity to the database
             $em->flush();
 
             // Redirect to the home page or any other page
@@ -386,6 +382,13 @@ class HomeController extends AbstractController
         {
             $soubor = $form->get('file')->getData();
 
+            // Zkontrolovat priponu
+            $extension = new UnicodeString(pathinfo($soubor->getClientOriginalName(), PATHINFO_EXTENSION));
+            $ext = $extension->lower();
+            if ($ext != "pdf" && $ext != "docx" && $ext != "doc") {
+                return new Response("Pripona souboru musi byt .pdf nebo .doc(x)!");
+            }
+
             $clanek->setNazevClanku($form->get('nazev_clanku')->getData());
             $clanek->setStavAutor(\App\Entity\StavAutor::PODANO->value);
             $clanek->setStavRedakce(\App\Entity\StavRedakce::NOVE_PODANY->value);
@@ -464,6 +467,7 @@ class HomeController extends AbstractController
             foreach ($posudky as $posudek)
             {
                 $em->remove($posudek);
+                $em->flush();
             }
         }
 
@@ -472,6 +476,7 @@ class HomeController extends AbstractController
         if ($namitka)
         {
             $em->remove($namitka);
+            $em->flush();
         }
 
         // Smazani komentaru k ukolu a samotny ukol
@@ -485,10 +490,12 @@ class HomeController extends AbstractController
                 foreach ($komentare_ukol as $ku)
                 {
                     $em->remove($ku);
+                    $em->flush();
                 }
             }
 
             $em->remove($ukol);
+            $em->flush();
         }
 
         // TODO: Kdyz nemam komentare tak funguje mazani verzi ale kdyz mam komentare tak nejde????
@@ -505,10 +512,12 @@ class HomeController extends AbstractController
                     foreach ($komentare_clanek as $kc)
                     {
                         $em->remove($kc);
+                        $em->flush();
                     }
                 }
 
                 $em->remove($vc);
+                $em->flush();
             }
         }
 
@@ -520,6 +529,7 @@ class HomeController extends AbstractController
         }
 
         $em->remove($clanek);
+        $em->flush();
     }
 
     #[Route(path: '/delete-clanek/{id}', name: 'app_delete_clanek')]
@@ -547,6 +557,7 @@ class HomeController extends AbstractController
 
             // Smazani vsech radku v ostatnich entitach, ktere odkazuji na konkretni clanek
             $this->smazatClanek($clanek, $doctrine);
+            $em->remove($clanek);
             $em->flush();
 
             // Redirect to the home page or any other page
@@ -557,5 +568,32 @@ class HomeController extends AbstractController
         return $this->render('home/delete-clanek.html.twig', [
             'clanek' => $clanek,
         ]);
+    }
+
+    #[Route(path: '/manage-content', name: 'app_manage_content')]
+    public function manageContent(): Response
+    {
+        return $this->render('home/manage-content.html.twig');
+    }
+
+    #[Route(path: '/tisk-overview', name: 'app_tisk_overview')]
+    public function tiskOverview(ManagerRegistry $doctrine): Response
+    {
+        $tisky = $doctrine->getManager()->getRepository(Tisk::class)->findAll();
+        return $this->render('home/tisk-overview.html.twig', ['tisky' => $tisky]);
+    }
+
+    #[Route(path: '/recenzni-rizeni-overview', name: 'app_recenzni_rizeni_overview')]
+    public function recenzniRizeniOverview(ManagerRegistry $doctrine): Response
+    {
+        $recenzni_rizeni = $doctrine->getManager()->getRepository(RecenzniRizeni::class)->findAll();
+        return $this->render('home/recenzni-rizeni-overview.html.twig', ['recenzni_rizeni' => $recenzni_rizeni]);
+    }
+
+    #[Route(path: '/clanky-overview', name: 'app_clanky_overview')]
+    public function clankyOverview(ManagerRegistry $doctrine): Response
+    {
+        $clanky= $doctrine->getManager()->getRepository(Clanek::class)->findAll();
+        return $this->render('home/clanky-overview.html.twig', ['clanky' => $clanky]);
     }
 }

@@ -8,6 +8,7 @@ use App\Entity\Namitka;
 use App\Entity\Role;
 use App\Entity\User;
 use App\Entity\VerzeClanku;
+use App\Form\CreateNamitkaType;
 use App\Form\UserRolesFormType;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -298,6 +299,43 @@ class SecurityController extends AbstractController
         return $this->render('security/show-namitka.html.twig',
         [
             'namitka' => $namitka,
+        ]);
+    }
+
+    #[Route(path: '/create-namitka/{clanek_id}', name: 'app_create_namitka')]
+    public function vytvorNamitku(Request $request, ManagerRegistry $doctrine, $clanek_id): Response
+    {
+        if ($this->getUser() == null ||
+            !in_array(Role::AUTOR->value, $this->getUser()->getRoles())){
+            return new Response("Pristup zamitnut");
+        }
+
+        $em = $doctrine->getManager();
+        $clanek = $em->getRepository(Clanek::class)->findOneBy(['id' => $clanek_id]);
+        if (!$clanek) {
+            return new Response("Chyba nacitani clanku!");
+        }
+
+        $form = $this->createForm(CreateNamitkaType::class);
+        $form->handleRequest($request);  //Předání dat z formuláře
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $namitka = new Namitka();
+            $namitka->setClanek($clanek);
+            $namitka->setDatum(date('d.m.Y'));
+            $namitka->setTextNamitky($form->get('text_namitky')->getData());
+
+            $em->persist($namitka);
+            $em->flush();
+
+            return $this->redirectToRoute('app_home');
+        }
+
+        return $this->render('security/create-namitka.html.twig',
+        [
+            'form' => $form->createView(),
+            'clanek' => $clanek,
         ]);
     }
 }

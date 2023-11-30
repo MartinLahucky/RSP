@@ -14,7 +14,7 @@
         Datum: {{ clanek_verze.getDatumNahrani() }}<br/>
         Namitka:
         {% if namitka == null %}
-            <i>Zadna</i>
+            <a href="{{ path('app_create_namitka', {'clanek_id': clanek_verze.getClanek().getId()}) }}">Vytvorit</a>
         {% else %}
             <a href="{{ path('app_show_namitka', {'namitka_id': namitka.getId()}) }}">Zobrazit</a>
         {% endif %}
