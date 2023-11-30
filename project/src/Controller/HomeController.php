@@ -446,7 +446,7 @@ class HomeController extends AbstractController
             }
 
             // Redirect to the home page or any other page
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('app_author_articles_overview');
         }
 
         // Render the form view in your template

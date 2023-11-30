@@ -9,6 +9,7 @@ use App\Entity\Role;
 use App\Entity\User;
 use App\Entity\VerzeClanku;
 use App\Form\CreateNamitkaType;
+use App\Form\KomentarType;
 use App\Form\UserRolesFormType;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -246,7 +247,7 @@ class SecurityController extends AbstractController
 
     // Zde budou zobrazeno konverzace mezi autorem a redaktorem a bude zde link na stazeni dane verze clanku
     #[Route(path: '/article-comments/{verze_clanku_id}', name: 'app_article_comments')]
-    public function articleComments(ManagerRegistry $doctrine, $verze_clanku_id): Response
+    public function articleComments(Request $request, ManagerRegistry $doctrine, $verze_clanku_id): Response
     {
         // Zkontroluje prava
         if ($this->getUser() == null) {
@@ -265,6 +266,23 @@ class SecurityController extends AbstractController
             return new Response("Verze clanku nenalezena");
         }
 
+        $form = $this->createForm(KomentarType::class);
+        $form->handleRequest($request);  //Předání dat z formuláře
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $komentar_clanek = new KomentarClanek();
+            $komentar_clanek->setVerzeClanku($verze_clanku);
+            $komentar_clanek->setUser($this->getUser());
+            $komentar_clanek->setDatum(date('d.m.Y'));
+            $komentar_clanek->setText($form->get('komentar')->getData());
+
+            $manager->persist($komentar_clanek);
+            $manager->flush();
+
+            return $this->redirectToRoute('app_article_comments', ['verze_clanku_id' => $verze_clanku->getId()]);
+        }
+
         // Nacteni komentaru
         $komentare = $manager->getRepository(KomentarClanek::class)->findBy(['verze_clanku' => $verze_clanku->getId()]);
 
@@ -274,6 +292,7 @@ class SecurityController extends AbstractController
         // TODO: Ve twigu chybi textove pole pro vytvoreni noveho komentare
         return $this->render('security/article-comments.html.twig',
         [
+            'form' => $form->createView(),
             'clanek_verze' => $verze_clanku,
             'komentare' => $komentare,
             'namitka' => $namitka,

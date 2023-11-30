@@ -10,6 +10,8 @@
 
 <div class="example-wrapper">
     <b>Nazev clanku: </b>{{ namitka.getClanek().getNazevClanku() }}<br/>
+    <b>Autor: </b>{{ namitka.getClanek().getUser().getFirstName() }} {{ namitka.getClanek().getUser().getLastName() }} <i>({{ namitka.getClanek().getUser().getEmail() }})</i><br/>
+    <b>Datum: </b>{{ namitka.getDatum() }}<br/>
     <b>Namitka:</b><br/>
     <div>
         {{ namitka.getTextNamitky() }}
