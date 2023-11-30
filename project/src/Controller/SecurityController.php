@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Role\Role as RoleRole;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 class SecurityController extends AbstractController
 {
     #[Route(path: '/download', name: 'app_download')]
-    public function download(Request $request)
+    public function download(Request $request): BinaryFileResponse
     {
         $clanek = $request->query->get('clanek');
         $verze = $request->query->get('verze');
@@ -72,13 +72,13 @@ class SecurityController extends AbstractController
     {
         $role = $doctrine->getManager()->getRepository(User::class)->find($id); //Najde na základě id záznam
         if (!$role) {
-            throw $this->createNotFoundException('Nebyla nalezena role s tímto id ' . $id); //Error pokud není záznam nalezen
+            return new Response("Chyba hledani uzitele");
         }
 
         // Check if the user has the right to edit this role 'ADMIN'
         if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         $form = $this->createForm(UserRolesFormType::class, $role);  //Tvorba nového formuléře podle vzoru ProductFormType
@@ -111,11 +111,11 @@ class SecurityController extends AbstractController
     {   
         if ($this->getUser()==null) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         // Create a new empty User entity
         $user = new User();
@@ -163,12 +163,12 @@ class SecurityController extends AbstractController
     {
         if ($this->getUser()==null) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         
         if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         $users = $doctrine->getRepository(User::class)->findAll();
@@ -180,16 +180,16 @@ class SecurityController extends AbstractController
     
 
 
-    #[Route(path: '/author-articles-overiew', name: 'app_author_articles_overview')]
+    #[Route(path: '/author-articles-overview', name: 'app_author_articles_overview')]
     public function authorArticlesOverviw(ManagerRegistry $doctrine): Response
     {
         // Zkontroluje prava
         if ($this->getUser() == null)
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles())) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         // Nacteni clanku
@@ -224,25 +224,15 @@ class SecurityController extends AbstractController
     {
         // Zkontroluje prava
         if ($this->getUser() == null) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles())) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         // Nacteni verzi clanku
         $manager = $doctrine->getManager();
-        $user = $manager->getRepository(User::class)->findOneBy(['email' => $this->getUser()->getUserIdentifier()]);
-        if (!$user){
-            return new Response('Uzivatel nenalezen');
-        }
-
-        $clanek = $manager->getRepository(Clanek::class)->findOneBy(['user' => $user->getId()]);
-        if (!$clanek) {
-            return new Response('Nebyly nalezeny zadne clanky');
-        }
-
-        $verze_clanku = $manager->getRepository(VerzeClanku::class)->findBy(['clanek' => $clanek->getId()]);
+        $verze_clanku = $manager->getRepository(VerzeClanku::class)->findBy(['clanek' => $clanek_id]);
         if (!$verze_clanku) {
             return new Response('Nebyly nalezeny zadne verze clanku');
         }
@@ -259,7 +249,7 @@ class SecurityController extends AbstractController
     {
         // Zkontroluje prava
         if ($this->getUser() == null) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles())
             && !in_array(Role::REDAKTOR->value, $this->getUser()->getRoles()))

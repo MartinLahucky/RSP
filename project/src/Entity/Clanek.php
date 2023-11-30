@@ -38,7 +38,7 @@ class Clanek
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'stav_autor')]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?RecenzniRizeni $recenzni_rizeni = null;
 
