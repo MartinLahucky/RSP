@@ -308,7 +308,7 @@ class HomeController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/delete-recenzni-rizeni/{id}', name: 'app_delete_recenzni_rizeni')] //TODO - fix
+    #[Route(path: '/delete-recenzni-rizeni/{id}', name: 'app_delete_recenzni_rizeni')]
     public function deleteRecenzniRizeni(Request $request, ManagerRegistry $doctrine, $id): Response
     {   
         if ($this->getUser()==null) 
@@ -498,7 +498,6 @@ class HomeController extends AbstractController
             $em->flush();
         }
 
-        // TODO: Kdyz nemam komentare tak funguje mazani verzi ale kdyz mam komentare tak nejde????
         // Smazani komentaru clanku a verzi clanku
         $verze_clanku = $em->getRepository(VerzeClanku::class)->findBy(['clanek' => $clanek->getId()]);
         if ($verze_clanku)

@@ -11,8 +11,10 @@ use App\Entity\VerzeClanku;
 use App\Form\CreateNamitkaType;
 use App\Form\KomentarType;
 use App\Form\UserRolesFormType;
+use App\Form\UserEditFormType;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -160,6 +162,67 @@ class SecurityController extends AbstractController
         ]);
     }
 
+    #[Route(path: '/user-profile', name: 'app_user_profile')]
+    public function userProfile(ManagerRegistry $doctrine): Response
+    {
+        if ($this->getUser()==null) 
+        {
+            return new Response("Pristup zamitnut");
+        }
+        
+        if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) 
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        $user = $doctrine->getManager()->getRepository(User::class)->findOneBy(['email' => $this->getUser()->getUserIdentifier()]);
+
+        return $this->render('security/user-profile.html.twig', [
+            'user' => $user
+        ]);
+    }
+
+    #[Route(path: '/edit-user-profile', name: 'app_edit_user_profile')]
+    public function editUserProfile(Request $request, ManagerRegistry $doctrine, UserPasswordHasherInterface $passwordEncoder): Response
+    {
+        if ($this->getUser()==null) 
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        $user = $doctrine->getManager()->getRepository(User::class)->findOneBy(['email' => $this->getUser()->getUserIdentifier()]);
+
+        $form = $this->createForm(UserEditFormType::class, $user); 
+
+        $form->handleRequest($request);  //Předání dat z formuláře
+
+        if ($form->isSubmitted()) 
+        {
+            if($form->isValid())
+            {
+                $password = $form->get('password')->getData();
+
+                if (!empty($password)) 
+                {
+                    $encodedPassword = $passwordEncoder->hashPassword($user, $password);
+                    $user->setPassword($encodedPassword);
+                }
+
+                $em = $doctrine->getManager(); // Objekt pro práci s entitami
+
+                $em->flush(); // Provedení změn v databázi
+
+                return $this->redirectToRoute('app_home');
+            }
+            //$doctrine()->getManager()->refresh();
+            $doctrine->getManager()->refresh($user);
+        }
+
+        return $this->render('security/edit-user-profile.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
     #[Route(path: '/user-overview', name: 'app_user_overview')]
     public function userOverview(ManagerRegistry $doctrine): Response
     {
@@ -289,7 +352,6 @@ class SecurityController extends AbstractController
         // Nacteni namitky
         $namitka = $manager->getRepository(Namitka::class)->findOneBy(['clanek' => $verze_clanku->getClanek()]);
 
-        // TODO: Ve twigu chybi textove pole pro vytvoreni noveho komentare
         return $this->render('security/article-comments.html.twig',
         [
             'form' => $form->createView(),
