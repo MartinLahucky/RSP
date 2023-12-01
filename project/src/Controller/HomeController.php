@@ -569,6 +569,52 @@ class HomeController extends AbstractController
         ]);
     }
 
+    #[Route(path: '/delete-user/{id}', name: 'app_delete_user')]
+    public function deleteUser(Request $request, ManagerRegistry $doctrine, $id): Response
+    {   
+        if ($this->getUser()==null) 
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
+            return new Response("Pristup zamitnut");
+        }
+        // Find User entity
+        $user = $doctrine->getManager()->getRepository(User::class)->find($id);
+        if (!$user) {
+            return new Response("Uživatel nenalezen!");
+        }
+
+        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) 
+        {
+
+            // Get the entity manager
+            $em = $doctrine->getManager();
+            
+            // Nejdrive smazat vsechno co odkazuje na uzivatele
+            $clanky = $em->getRepository(Clanek::class)->findBy(['user' => $user->getId()]);
+            if ($clanky)
+            {
+                foreach ($clanky as $clanek)
+                {
+                    $this->smazatClanek($clanek, $doctrine);
+                }
+            }
+            
+            $em->remove($user);
+            $em->flush();
+
+            // Redirect to the home page or any other page
+            return $this->redirectToRoute('app_home');
+        }
+
+        // Render the form view in your template
+        return $this->render('home/delete-user.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
     #[Route(path: '/manage-content', name: 'app_manage_content')]
     public function manageContent(): Response
     {
