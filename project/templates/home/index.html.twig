@@ -9,7 +9,10 @@
 </style>
 
 <div class="container kontejner">
-{% for i in 0..(clanky|length - 1) %}
+{% if clanky == null %}
+    <span><br>Zadne clanky k zobrazeni</span>
+{% else %}
+    {% for i in 0..(clanky|length - 1) %}
         <div class="card m-3 rad-25" style="width: 18rem;">
 
         <div class="card-header bg-red">
@@ -24,6 +27,7 @@
         </div>
         </div>
       </div>
-{% endfor %}
+    {% endfor %}
+{% endif %}
 </div>
 {% endblock %}

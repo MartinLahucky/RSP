@@ -30,13 +30,6 @@ class ClanekFormType extends AbstractType
                     new File([
                         'maxSize' => '25M',
                         'maxSizeMessage' => 'Maximalni velikost souboru je 25MB',
-                        'mimeTypes' => [
-                            'application/pdf',
-                            'application/x-pdf',
-                            'application/msword',
-                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                        ],
-                        'mimeTypesMessage' => 'Soubor musi mit priponu .pdf, .doc, nebo .docx',
                     ])
                 ],
             ]);

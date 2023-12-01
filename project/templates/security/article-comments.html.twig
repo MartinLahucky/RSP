@@ -6,6 +6,10 @@
 <style>
     .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
     .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    textarea {
+        width: 100%;
+        height: 30vh;
+    }
 </style>
 
 <div class="example-wrapper">
@@ -14,7 +18,7 @@
         Datum: {{ clanek_verze.getDatumNahrani() }}<br/>
         Namitka:
         {% if namitka == null %}
-            <i>Zadna</i>
+            <a href="{{ path('app_create_namitka', {'clanek_id': clanek_verze.getClanek().getId()}) }}">Vytvorit</a>
         {% else %}
             <a href="{{ path('app_show_namitka', {'namitka_id': namitka.getId()}) }}">Zobrazit</a>
         {% endif %}
@@ -46,5 +50,11 @@
             </tbody>
         </table>
     {% endif %}
+
+    <br><b>Napsat komentar: </b>
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button type="submit" class="btn btn-success">Odeslat</button>
+    {{ form_end(form) }}
 </div>
 {% endblock %}

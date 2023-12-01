@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Prehled tisku{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+    <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;" >
+        <thead class="shadow-sm">
+         <tr>
+           <th>Clanek</th>
+           <th>Nazev</th>
+           <th>Autor</th>
+             <th>Detail</th>
+             <th>Smazat</th>
+         </tr> 
+         </thead>
+         <tbody>
+         {% if clanky == null %}
+             Zadne clanky k zobrazeni
+         {% else %}
+             {% for i in 0..(clanky|length - 1) %}
+             <tr>
+                 <td> {{ (i + 1) }} </td>
+                <td> {{ clanky[i].getNazevClanku() }} </td>
+               <td>
+                    {{ clanky[i].getUser().getFirstName() }} {{ clanky[i].getUser().getLastName() }}<br/>
+                   <small><i>{{ clanky[i].getUser().getEmail() }}</i></small>
+                </td>
+                 <td>
+                     <a class="btn btn-primary" href="{{ path('app_author_article_detail', {'clanek_id': clanky[i].getId() }) }}">Detail</a>
+                 </td>
+                 <td>
+                     <a class="btn btn-primary" href="{{ path('app_delete_clanek', {'id': clanky[i].getId() }) }}">Smazat</a>
+                 </td>
+             </tr>
+            {% endfor %}
+         {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

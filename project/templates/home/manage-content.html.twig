@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Spravovat obsah{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div style="margin: 0 auto;">
+    <br/><br/>
+    <a class="btn btn-primary" href="{{ path('app_tisk_overview') }}">Prehled tisku</a><br/><br/>
+    <a class="btn btn-primary" href="{{ path('app_recenzni_rizeni_overview') }}">Prehled recenznich rizeni</a><br/><br/>
+    <a class="btn btn-primary" href="{{ path('app_clanky_overview') }}">Prehled clanku</a>
+</div>
+{% endblock %}

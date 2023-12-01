@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Vytvorit namitku {% endblock %}
+
+{% block body %}
+    <style>
+        textarea {
+            width: 50%;
+            height: 35vh;
+        }
+    </style>
+
+    <div style="margin-left: 1%;">
+        <br/>
+        <b>Nazev clanku: </b>{{ clanek.getNazevClanku() }}<br/>
+        <b>Text namitky:</b><br/>
+        {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button type="submit" class="btn btn-success">Odeslat</button>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
+

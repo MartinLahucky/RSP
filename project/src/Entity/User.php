@@ -124,6 +124,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function isAdmin(): bool
+    {
+        // Assuming $this->roles is an array of Role enum objects
+        foreach ($this->roles as $role) {
+            if ($role === \App\Entity\Role::ADMIN->value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isAutor(): bool
+    {
+        // Assuming $this->roles is an array of Role enum objects
+        if (!$this->roles)
+        {
+            return true; // Protoze default role je autor
+        }
+
+        foreach ($this->roles as $role) {
+            if ($role === \App\Entity\Role::AUTOR->value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * @see PasswordAuthenticatedUserInterface
      */
