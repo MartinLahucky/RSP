@@ -539,7 +539,8 @@ class HomeController extends AbstractController
             return new Response("Pristup zamitnut");
         }
 
-        if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
+        if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::AUTOR->value, $this->getUser()->getRoles())) {
             return new Response("Pristup zamitnut");
         }
 

@@ -169,14 +169,8 @@ class SecurityController extends AbstractController
         {
             return new Response("Pristup zamitnut");
         }
-        
-        if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) 
-        {
-            return new Response("Pristup zamitnut");
-        }
 
         $user = $doctrine->getManager()->getRepository(User::class)->findOneBy(['email' => $this->getUser()->getUserIdentifier()]);
-
         return $this->render('security/user-profile.html.twig', [
             'user' => $user
         ]);
@@ -265,10 +259,6 @@ class SecurityController extends AbstractController
         }
 
         $clanky = $manager->getRepository(Clanek::class)->findBy(['user' => $user->getId()]);
-        if (!$clanky) {
-            return new Response('Nebyly nalezeny zadne clanky'); //Error pokud není záznam nalezen
-        }
-
         // Nacteni prvni verze clanku ke kazdemu clanku, abych mohl mohl zobrazit info ke kazdemu clanku
         $clanek_verze = array();
         foreach ($clanky as $clanek)
@@ -418,5 +408,46 @@ class SecurityController extends AbstractController
             'form' => $form->createView(),
             'clanek' => $clanek,
         ]);
+    }
+
+    #[Route(path: '/prehled-clanku-schvaleni', name: 'app_prehled_clanku_schvaleni')]
+    public function prehledClankuSchvaleni(ManagerRegistry $doctrine): Response
+    {
+        if ($this->getUser() == null ||
+            !in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles())){
+            return new Response("Pristup zamitnut");
+        }
+
+        $clanky = $doctrine->getManager()->getRepository(Clanek::class)->findBy(['stav_redakce' => \App\Entity\StavRedakce::VYJADRENI_SEFREDAKTORA->value]);
+        return $this->render('security/prehled-clanku-schvaleni.html.twig',
+        [
+            'clanky' => $clanky,
+        ]);
+    }
+
+    #[Route(path: '/zmenit-stav-clanku/{clanek_id}', name: 'app_zmenit_stav_clanku')]
+    public function prijatClanek(Request $request, ManagerRegistry $doctrine, $clanek_id): Response
+    {
+        $stav_autor = $request->query->get('stav_autor');
+        $stav_redakce = $request->query->get('stav_redakce');
+
+        $em = $doctrine->getManager();
+        $clanek = $em->getRepository(Clanek::class)->find($clanek_id);
+        if (!$clanek) {
+            return new Response("Chyba aktualizovani clanku!");
+        }
+
+        if ($stav_autor) {
+            $clanek->setStavAutor($stav_autor);
+        }
+        if ($stav_redakce) {
+            $clanek->setStavRedakce($stav_redakce);
+        }
+
+        $em->persist($clanek);
+        $em->flush();
+
+        // Presmerovat zpet
+        return $this->redirect($request->headers->get('referer'));
     }
 }
