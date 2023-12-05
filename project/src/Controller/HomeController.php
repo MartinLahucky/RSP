@@ -34,10 +34,20 @@ class HomeController extends AbstractController
 
 {
     #[Route('/home', name: 'app_home')]
-    public function index(ManagerRegistry $doctrine): Response
+    public function index(ManagerRegistry $doctrine, Request $request): Response
     {
+        $searchTerm = $request->query->get('search', '');
+
         $manager = $doctrine->getManager();
-        $clanky = $manager->getRepository(Clanek::class)->findBy(['stav_autor' => \App\Entity\StavAutor::PRIJATO]);
+        //$clanky = $manager->getRepository(Clanek::class)->findBy(['stav_autor' => \App\Entity\StavAutor::PRIJATO]);
+
+        if (!empty($searchTerm)) 
+        {
+            $clanky = $manager->getRepository(Clanek::class)->findBySearchTerm($searchTerm);
+        } else 
+        {
+            $clanky = $manager->getRepository(Clanek::class)->findBy(['stav_autor' => \App\Entity\StavAutor::PRIJATO]);
+        }
 
         // Nacist datumy vydani (tisku) a soubory clanku
         $datumy = array();
