@@ -35,6 +35,16 @@ class ClanekRepository extends ServiceEntityRepository
 //            ->getResult()
 //        ;
 //    }
+    public function findBySearchTerm($searchTerm)
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.nazev_clanku LIKE :term')
+            ->andWhere('c.stav_autor = :status')
+            ->setParameter('term', '%'.$searchTerm.'%')
+            ->setParameter('status', \App\Entity\StavAutor::PRIJATO)
+            ->getQuery()
+            ->getResult();
+    }
 
 //    public function findOneBySomeField($value): ?Clanek
 //    {

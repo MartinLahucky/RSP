@@ -67,6 +67,11 @@
                 {% endif %}
             
                 </div>
+                <form action="{{ path('app_home') }}" method="get">
+                  <input type="text" name="search" placeholder="Hledat clanky...">
+                  <button type="submit">Hledat</button>
+              </form>
+              
           </div>
 </nav>
 <!-- Navigation -->
@@ -101,6 +106,11 @@
                 {% endif %}
             
                 </div>
+                <form action="{{ path('app_home') }}" method="get">
+                  <input type="text" name="search" placeholder="Hledat clanky...">
+                  <button type="submit">Hledat</button>
+                </form>
+              
           </div>
 </nav>
 
