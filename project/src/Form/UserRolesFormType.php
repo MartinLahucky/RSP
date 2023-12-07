@@ -14,7 +14,7 @@ class UserRolesFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('email', null, ['attr' => ['readonly' => true]])
+            ->add('email')
             ->add('firstname')
             ->add('lastname')
             ->add('roles', ChoiceType::class, [

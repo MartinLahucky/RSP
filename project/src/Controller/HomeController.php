@@ -34,10 +34,20 @@ class HomeController extends AbstractController
 
 {
     #[Route('/home', name: 'app_home')]
-    public function index(ManagerRegistry $doctrine): Response
+    public function index(ManagerRegistry $doctrine, Request $request): Response
     {
+        $searchTerm = $request->query->get('search', '');
+
         $manager = $doctrine->getManager();
-        $clanky = $manager->getRepository(Clanek::class)->findBy(['stav_autor' => \App\Entity\StavAutor::PRIJATO]);
+        //$clanky = $manager->getRepository(Clanek::class)->findBy(['stav_autor' => \App\Entity\StavAutor::PRIJATO]);
+
+        if (!empty($searchTerm)) 
+        {
+            $clanky = $manager->getRepository(Clanek::class)->findBySearchTerm($searchTerm);
+        } else 
+        {
+            $clanky = $manager->getRepository(Clanek::class)->findBy(['stav_autor' => \App\Entity\StavAutor::PRIJATO]);
+        }
 
         // Nacist datumy vydani (tisku) a soubory clanku
         $datumy = array();
@@ -308,7 +318,7 @@ class HomeController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/delete-recenzni-rizeni/{id}', name: 'app_delete_recenzni_rizeni')] //TODO - fix
+    #[Route(path: '/delete-recenzni-rizeni/{id}', name: 'app_delete_recenzni_rizeni')]
     public function deleteRecenzniRizeni(Request $request, ManagerRegistry $doctrine, $id): Response
     {   
         if ($this->getUser()==null) 
@@ -498,7 +508,6 @@ class HomeController extends AbstractController
             $em->flush();
         }
 
-        // TODO: Kdyz nemam komentare tak funguje mazani verzi ale kdyz mam komentare tak nejde????
         // Smazani komentaru clanku a verzi clanku
         $verze_clanku = $em->getRepository(VerzeClanku::class)->findBy(['clanek' => $clanek->getId()]);
         if ($verze_clanku)
@@ -540,7 +549,8 @@ class HomeController extends AbstractController
             return new Response("Pristup zamitnut");
         }
 
-        if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
+        if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::AUTOR->value, $this->getUser()->getRoles())) {
             return new Response("Pristup zamitnut");
         }
 
@@ -567,6 +577,52 @@ class HomeController extends AbstractController
         // Render the form view in your template
         return $this->render('home/delete-clanek.html.twig', [
             'clanek' => $clanek,
+        ]);
+    }
+
+    #[Route(path: '/delete-user/{id}', name: 'app_delete_user')]
+    public function deleteUser(Request $request, ManagerRegistry $doctrine, $id): Response
+    {   
+        if ($this->getUser()==null) 
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
+            return new Response("Pristup zamitnut");
+        }
+        // Find User entity
+        $user = $doctrine->getManager()->getRepository(User::class)->find($id);
+        if (!$user) {
+            return new Response("Uživatel nenalezen!");
+        }
+
+        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) 
+        {
+
+            // Get the entity manager
+            $em = $doctrine->getManager();
+            
+            // Nejdrive smazat vsechno co odkazuje na uzivatele
+            $clanky = $em->getRepository(Clanek::class)->findBy(['user' => $user->getId()]);
+            if ($clanky)
+            {
+                foreach ($clanky as $clanek)
+                {
+                    $this->smazatClanek($clanek, $doctrine);
+                }
+            }
+            
+            $em->remove($user);
+            $em->flush();
+
+            // Redirect to the home page or any other page
+            return $this->redirectToRoute('app_home');
+        }
+
+        // Render the form view in your template
+        return $this->render('home/delete-user.html.twig', [
+            'user' => $user,
         ]);
     }
 

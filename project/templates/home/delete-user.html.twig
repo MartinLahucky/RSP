@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <b>Jméno: </b>{{ user.getFirstName()}} {{user.getLastName()}}<br/>
+            <b>Email: </b>{{ user.getEmail}}<br/>
+            <div><b>Role</b>
+            {% for role in user.getRoles() %}
+            <span class="rad-25 p-2 bg-red white m-1">{{role}}</span>
+            {% endfor %}
+            </div>
+        <br>
+        <form action="{{ path('app_delete_user', {'id': user.getId() }) }}" method="post">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.getId() ) }}">
+            <button type="submit" class="btn btn-primary">Delete</button>    
+        </form>
+        <br>
+            <button class="btn btn-primary" onclick="window.history.back();">Go Back</button>
+        </div>
+    </div>
+
+{% endblock %}
+

@@ -92,7 +92,7 @@ html:focus-within{
 }
 
 .login{
-    height: 80vh;
+    min-height: 80vh;
     border-radius: 25px;
     background-color: var(--clr-red);
 }
@@ -119,6 +119,18 @@ html:focus-within{
 
 .card-header{
     border-radius: calc(1.25rem - 1px) calc(1.25rem - 1px) 0 0!important;
+}
+
+.back{
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+.back:hover{
+    background-color:rgb(255, 160, 160);
+    transition: all 0.5s ease;
+    border:none;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+    transform: scale(1.1);
+    
 }
 
 
