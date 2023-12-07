@@ -426,8 +426,17 @@ class SecurityController extends AbstractController
     }
 
     #[Route(path: '/zmenit-stav-clanku/{clanek_id}', name: 'app_zmenit_stav_clanku')]
-    public function prijatClanek(Request $request, ManagerRegistry $doctrine, $clanek_id): Response
+    public function zmenitStavClanku(Request $request, ManagerRegistry $doctrine, $clanek_id): Response
     {
+        if ($this->getUser() == null) {
+            return new Response("Pristup zamitnut");
+        }
+        if (!in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::REDAKTOR->value, $this->getUser()->getRoles()))
+        {
+            return new Response("Pristup zamitnut");
+        }
+
         $stav_autor = $request->query->get('stav_autor');
         $stav_redakce = $request->query->get('stav_redakce');
 
