@@ -26,6 +26,9 @@ class Ukol
     #[ORM\Column(length: 10)]
     private ?string $deadline = null;
 
+    #[ORM\Column(length: 500)]
+    private ?string $description = null;
+
     public function __construct()
     {
         $this->user = new ArrayCollection();
@@ -44,6 +47,18 @@ class Ukol
     public function setClanek(Clanek $clanek): static
     {
         $this->clanek = $clanek;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
 
         return $this;
     }

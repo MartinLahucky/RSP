@@ -678,12 +678,11 @@ class HomeController extends AbstractController
             !in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles())){
             return new Response("Pristup zamitnut");
         }
-        // Create a new empty Ukol entity
         $ukol = new Ukol();
-        // Create the form for the Tisk entity
+
         $form = $this->createForm(UkolFormType::class);
 
-        // Handle the request
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid())
@@ -697,20 +696,72 @@ class HomeController extends AbstractController
 
             $em = $doctrine->getManager();
 
-            // Persist the new user entity
+
             $em->persist($ukol);
 
-            // Flush to save the new user entity to the database
+
             $em->flush();
 
-            // Redirect to the home page or any other page
+            return $this->redirectToRoute('app_home');
+        }
+
+        return $this->render('home/create-ukol.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route(path: '/delete-ukol/{id}', name: 'app_delete_ukol')]
+    public function deleteUkol(Request $request, ManagerRegistry $doctrine, $id): Response
+    {   
+        if ($this->getUser()==null) 
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
+            return new Response("Pristup zamitnut");
+        }
+
+        $ukol = $doctrine->getManager()->getRepository(Ukol::class)->find($id);
+        if (!$ukol) {
+            return new Response("Chyba nacitani tisku!");
+        }
+
+        if ($this->isCsrfTokenValid('delete'.$ukol->getId(), $request->request->get('_token'))) 
+        {
+
+            // Get the entity manager
+            $em = $doctrine->getManager();
+
+            $em->remove($ukol);
+            $em->flush();
+
             return $this->redirectToRoute('app_home');
         }
 
         // Render the form view in your template
-        return $this->render('home/create-ukol.html.twig', [
-            'form' => $form->createView(),
+        return $this->render('home/delete-ukol.html.twig', [
+            'ukol' => $ukol,
         ]);
+    }
+/*
+    #[Route(path: '/edit-ukol/{id}', name: 'app_edit_ukol')]
+    public function editUkol(ManagerRegistry $doctrine,$id): Response
+    {
+        $ukoly= $doctrine->getManager()->getRepository(Ukol::class)->findAll();
+
+        return $this->render('home/ukoly-overview.html.twig', ['ukoly' => $ukoly]);
+    }*/
+
+    #[Route(path: '/ukoly-overview', name: 'app_ukoly_overview')]
+    public function ukolyOverview(ManagerRegistry $doctrine): Response
+    {
+        $ukoly= $doctrine->getManager()->getRepository(Ukol::class)->findAll();
+
+
+
+
+        return $this->render('home/ukoly-overview.html.twig', ['ukoly' => $ukoly]);
     }
     
 }

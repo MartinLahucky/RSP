@@ -7,8 +7,10 @@ use App\Entity\User;
 use App\Entity\Clanek;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Length;
 
 class UkolFormType extends AbstractType
 {
@@ -16,6 +18,18 @@ class UkolFormType extends AbstractType
     {
         $builder
             ->add('deadline')
+            ->add('description', TextareaType::class,
+            [
+                'attr' => [
+                    'maxlength' => 500,
+                ],
+                'constraints' => [
+                    new Length([
+                        'max' => 500,
+                        'maxMessage' => 'Maximalni povoleny pocet znaku je {{ limit }}.',
+                    ]),
+                ],
+            ])
             ->add('clanek', EntityType::class,
             [
                 'class' => Clanek::class,
