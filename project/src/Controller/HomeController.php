@@ -24,6 +24,7 @@ use App\Entity\User;
 use App\Form\ClanekFormType;
 use App\Form\RecenzniRizeniFormType;
 use App\Form\TiskFormType;
+use App\Form\UkolFormType;
 use DateTime;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -37,13 +38,15 @@ class HomeController extends AbstractController
     public function index(ManagerRegistry $doctrine, Request $request): Response
     {
         $searchTerm = $request->query->get('search', '');
+        $authorFilter = $request->query->get('autor-filter', '');
 
         $manager = $doctrine->getManager();
+        //$users = $manager->getRepository(User::class)->findAll();
         //$clanky = $manager->getRepository(Clanek::class)->findBy(['stav_autor' => \App\Entity\StavAutor::PRIJATO]);
 
-        if (!empty($searchTerm)) 
+        if (!empty($searchTerm) || !empty($authorFilter)) 
         {
-            $clanky = $manager->getRepository(Clanek::class)->findBySearchTerm($searchTerm);
+            $clanky = $manager->getRepository(Clanek::class)->findByFilters($searchTerm, $authorFilter);
         } else 
         {
             $clanky = $manager->getRepository(Clanek::class)->findBy(['stav_autor' => \App\Entity\StavAutor::PRIJATO]);
@@ -53,6 +56,8 @@ class HomeController extends AbstractController
         $datumy = array();
         $verze_clanku = array();
         $soubory = array();
+        $authors = array();
+        $authorsIds = array();
         foreach ($clanky as $clanek)
         {
             $recenzni_rizeni = $manager->getRepository(RecenzniRizeni::class)->findOneBy(['id' => $clanek->getRecenzniRizeni()]);
@@ -71,10 +76,20 @@ class HomeController extends AbstractController
                 return new Response("Chyba načítání článků");
             }
 
+            $author = $manager->getRepository(User::class)->findOneBy(['id' => $clanek->getUser()->getId()]);
+            if (!$author) {
+                return new Response("Chyba načítání článků");
+            }
+
+            array_push($authors, $author->getFirstName().' '.$author->getLastName());
+            array_push($authorsIds, $author->getId());
             array_push($datumy, $tisk->getDatum());
             array_push($verze_clanku, $verze[count($verze) - 1]);
             array_push($soubory, $verze[count($verze) - 1]->getSouborClanek());
         }
+
+        $authors = array_unique($authors,SORT_STRING);
+        $authorsIds = array_unique($authorsIds,SORT_NUMERIC);
 
         return $this->render('home/index.html.twig',
         [
@@ -82,6 +97,8 @@ class HomeController extends AbstractController
             'datumy' => $datumy,
             'verze_clanku' => $verze_clanku,
             'soubory' => $soubory,
+            'authors' =>  $authors,
+            'authorsIds' =>  $authorsIds
         ]);
     }
 
@@ -652,4 +669,48 @@ class HomeController extends AbstractController
         $clanky= $doctrine->getManager()->getRepository(Clanek::class)->findAll();
         return $this->render('home/clanky-overview.html.twig', ['clanky' => $clanky]);
     }
+
+
+    #[Route(path: '/create-ukol', name: 'app_create_task')]
+    public function createTasl(Request $request, ManagerRegistry $doctrine): Response
+    {   
+        if ($this->getUser() == null ||
+            !in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles())){
+            return new Response("Pristup zamitnut");
+        }
+        // Create a new empty Ukol entity
+        $ukol = new Ukol();
+        // Create the form for the Tisk entity
+        $form = $this->createForm(UkolFormType::class);
+
+        // Handle the request
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $ukol = $form->getData();
+            $usersInForm = $form->get('user')->getData();
+            
+            foreach ($usersInForm as $user) {
+                $ukol->addUser($user);
+            }
+
+            $em = $doctrine->getManager();
+
+            // Persist the new user entity
+            $em->persist($ukol);
+
+            // Flush to save the new user entity to the database
+            $em->flush();
+
+            // Redirect to the home page or any other page
+            return $this->redirectToRoute('app_home');
+        }
+
+        // Render the form view in your template
+        return $this->render('home/create-ukol.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+    
 }
