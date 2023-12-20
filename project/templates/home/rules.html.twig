@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<style>
+b{
+    color:white;
+}
+</style>
+
+
+    <div class="container">
+  <div class="row justify-content-center">
+    <div class="col-xs-4 login m-3">
+          <h1 class="p-3 headingLogin text-center m-3">Pravidla</h1>
+          <div class="form-group mt-2 white">
+          <p class="white">
+<b>Registrace a Profil:</b><br />
+
+Autor musí být registrován v systému a mít vlastní bezpečný přihlašovací profil.<br />
+<b>Formát Článku:</b><br />
+
+Článek musí být předkládán ve formátu PDF nebo DOC(X).
+Název příspěvku, kontaktní údaje autorského týmu a plný text článku musí být jasně uvedeny.<br />
+<b>Tematické Číslo:</b><br />
+
+Autor může vybrat tematické číslo časopisu.
+Informace o aktuálním zájmu (počet příspěvků v recenzním řízení a kapacita výtisku) jsou k dispozici.<br />
+<b>Recenzní Řízení:</b><br />
+
+Autor bude průběžně informován o aktuální fázi recenzního řízení svého příspěvku.
+Má možnost poslat redaktorovi námitky v případě nesouhlasu s oponentem.<br />
+<b>Archivace a Srovnání Verzí:</b><br />
+
+Všechny verze příspěvků a související informace jsou archivovány v systému.
+Možnost srovnání jednotlivých verzí článku.<br />
+<b>Komunikace:</b><br />
+
+Autor může komunikovat s redaktorem prostřednictvím systému ohledně stavu a úprav příspěvku.
+Veškerá komunikace probíhá v systému.<br />
+<b>Dodržování Pokynů:</b><br />
+
+Autor musí dodržovat stanovené pokyny pro přípravu a odevzdání článku.
+Formální i obsahová kompatibilita s aktuálním tematickým vydáním musí být zajištěna.<br />
+<b>Práva a Opravy:</b><br />
+
+Autor má právo na vyjádření k posudkům recenzentů a může provést opravy na základě jejich námětů.
+Změny jsou možné nejvýše jednou.<br />
+
+<b>Dostupnost Informací:</b><br />
+
+Autor má přístup k informacím o stavu svého příspěvku a může sledovat aktuální fáze recenzního řízení.<br />
+<b>Dodržování Termínů:</b><br />
+
+Autor musí dodržovat stanovené termíny pro odevzdání článku a případné úpravy.<br />
+<b>Zadávání Námitek:</b><br />
+
+V případě nesouhlasu s posudky má autor právo poslat redaktorovi své námitky formou oponentního formuláře.<br /><br /></p></div>
+    {% if app.user %}
+        {% if app.user.isAdmin %}
+            <div class="form-group mt-2 white">
+                    {{ form_start(form) }}
+                    {{ form_label(form.file, 'Soubor', {'label_attr': {'class': 'col-form-label col-sm-2 white text-center'}}) }}
+                    {{ form_widget(form.file, {'attr': {'class': ''}}) }}<br />
+                    <button type="submit" class="btn btn-success">Uložit</button>
+                    {{ form_end(form) }}
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+  </div>
+</div>
+{% endblock %}

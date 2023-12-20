@@ -29,6 +29,9 @@ class Ukol
     #[ORM\Column(length: 500)]
     private ?string $description = null;
 
+    #[ORM\Column]
+    private ?bool $Done = null;
+
     public function __construct()
     {
         $this->user = new ArrayCollection();
@@ -94,6 +97,18 @@ class Ukol
     public function setDeadline(string $deadline): static
     {
         $this->deadline = $deadline;
+
+        return $this;
+    }
+
+    public function isDone(): ?bool
+    {
+        return $this->Done;
+    }
+
+    public function setDone(bool $Done): static
+    {
+        $this->Done = $Done;
 
         return $this;
     }
