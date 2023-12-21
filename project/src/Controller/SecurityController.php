@@ -437,26 +437,36 @@ class SecurityController extends AbstractController
             return new Response("Pristup zamitnut");
         }
 
-        $stav_autor = $request->query->get('stav_autor');
-        $stav_redakce = $request->query->get('stav_redakce');
-
-        $em = $doctrine->getManager();
-        $clanek = $em->getRepository(Clanek::class)->find($clanek_id);
-        if (!$clanek) {
-            return new Response("Chyba aktualizovani clanku!");
+        // Pokud mam zobrazit formular
+        if ($request->query->get('formular') == true)
+        {
+            ///////
         }
 
-        if ($stav_autor) {
-            $clanek->setStavAutor($stav_autor);
-        }
-        if ($stav_redakce) {
-            $clanek->setStavRedakce($stav_redakce);
+        else {
+            $stav_autor = $request->query->get('stav_autor');
+            $stav_redakce = $request->query->get('stav_redakce');
+
+            $em = $doctrine->getManager();
+            $clanek = $em->getRepository(Clanek::class)->find($clanek_id);
+            if (!$clanek) {
+                return new Response("Chyba aktualizovani clanku!");
+            }
+
+            if ($stav_autor) {
+                $clanek->setStavAutor($stav_autor);
+            }
+            if ($stav_redakce) {
+                $clanek->setStavRedakce($stav_redakce);
+            }
+
+            $em->persist($clanek);
+            $em->flush();
+
+            // Presmerovat zpet
+            return $this->redirect($request->headers->get('referer'));
         }
 
-        $em->persist($clanek);
-        $em->flush();
-
-        // Presmerovat zpet
-        return $this->redirect($request->headers->get('referer'));
+        return new Response();
     }
 }

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Prehled tisku{% endblock %}
+{% block title %}Prehled vsech clanku{% endblock %}
 
 {% block body %}
 <style>
@@ -9,12 +9,14 @@
 </style>
 
 <div class="example-wrapper">
+    <h1>Prehled vsech clanku</h1>
     <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;" >
         <thead class="shadow-sm">
          <tr>
            <th>Clanek</th>
            <th>Nazev</th>
            <th>Autor</th>
+             <th>Stav</th>
              <th>Detail</th>
              <th>Smazat</th>
          </tr> 
@@ -31,6 +33,9 @@
                     {{ clanky[i].getUser().getFirstName() }} {{ clanky[i].getUser().getLastName() }}<br/>
                    <small><i>{{ clanky[i].getUser().getEmail() }}</i></small>
                 </td>
+                 <td>
+                     <a class="btn btn-primary" href="{{ path('app_zmenit_stav_clanku', {'clanek_id': clanky[i].getId() }) }}">Zmenit</a>
+                 </td>
                  <td>
                      <a class="btn btn-primary" href="{{ path('app_author_article_detail', {'clanek_id': clanky[i].getId() }) }}">Detail</a>
                  </td>

@@ -110,7 +110,7 @@ class HomeController extends AbstractController
             return new Response("Pristup zamitnut");
         }
 
-        if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
+        if (!in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles()) && !in_array(Role::REDAKTOR->value, $this->getUser()->getRoles())) {
             return new Response("Pristup zamitnut");
         }
         // Create a new empty Tisk entity
@@ -427,7 +427,6 @@ class HomeController extends AbstractController
             }
 
             // Nalezeni recenzniho (prvniho a jedineho) aktivniho rizeni
-            // TODO: Mozna by se dalo zjenodusit tim, ze by se v DB vytvoril novy atribut, ktery by urcoval zda je dane recenzni rizeni jiz uzavreno nebo ne?????
             $current_time = strtotime(date('d.m.Y'));
             $valid_rc = null;
             foreach ($recenzni_rizeni as $rc)
@@ -646,12 +645,25 @@ class HomeController extends AbstractController
     #[Route(path: '/manage-content', name: 'app_manage_content')]
     public function manageContent(): Response
     {
+        if ($this->getUser()==null) {
+            return new Response("Pristup zamitnut");
+        }
+        if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
+            return new Response("Pristup zamitnut");
+        }
         return $this->render('home/manage-content.html.twig');
     }
 
     #[Route(path: '/tisk-overview', name: 'app_tisk_overview')]
     public function tiskOverview(ManagerRegistry $doctrine): Response
     {
+        if ($this->getUser()==null) {
+            return new Response("Pristup zamitnut");
+        }
+        if (!in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::REDAKTOR->value, $this->getUser()->getRoles())) {
+            return new Response("Pristup zamitnut");
+        }
         $tisky = $doctrine->getManager()->getRepository(Tisk::class)->findAll();
         return $this->render('home/tisk-overview.html.twig', ['tisky' => $tisky]);
     }
@@ -659,6 +671,13 @@ class HomeController extends AbstractController
     #[Route(path: '/recenzni-rizeni-overview', name: 'app_recenzni_rizeni_overview')]
     public function recenzniRizeniOverview(ManagerRegistry $doctrine): Response
     {
+        if ($this->getUser()==null) {
+            return new Response("Pristup zamitnut");
+        }
+        if (!in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::REDAKTOR->value, $this->getUser()->getRoles())) {
+            return new Response("Pristup zamitnut");
+        }
         $recenzni_rizeni = $doctrine->getManager()->getRepository(RecenzniRizeni::class)->findAll();
         return $this->render('home/recenzni-rizeni-overview.html.twig', ['recenzni_rizeni' => $recenzni_rizeni]);
     }
@@ -666,40 +685,48 @@ class HomeController extends AbstractController
     #[Route(path: '/clanky-overview', name: 'app_clanky_overview')]
     public function clankyOverview(ManagerRegistry $doctrine): Response
     {
+        if ($this->getUser()==null) {
+            return new Response("Pristup zamitnut");
+        }
+        if (!in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::REDAKTOR->value, $this->getUser()->getRoles())) {
+            return new Response("Pristup zamitnut");
+        }
+
         $clanky= $doctrine->getManager()->getRepository(Clanek::class)->findAll();
         return $this->render('home/clanky-overview.html.twig', ['clanky' => $clanky]);
     }
 
-
     #[Route(path: '/create-ukol', name: 'app_create_task')]
-    public function createTasl(Request $request, ManagerRegistry $doctrine): Response
+    public function createTask(Request $request, ManagerRegistry $doctrine): Response
     {   
         if ($this->getUser() == null ||
-            !in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles())){
+            (!in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::REDAKTOR->value, $this->getUser()->getRoles()))) {
             return new Response("Pristup zamitnut");
         }
+
         $ukol = new Ukol();
-
         $form = $this->createForm(UkolFormType::class);
-
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid())
         {
-            $ukol = $form->getData();
-            $usersInForm = $form->get('user')->getData();
-            
-            foreach ($usersInForm as $user) {
-                $ukol->addUser($user);
-            }
-
             $em = $doctrine->getManager();
 
+            $clanek = $form->get('clanek')->getData();
+            if (!$clanek) {
+                return new Response("Musite vybrat clanek pro hodnoceni!");
+            }
+
+            $clanek->setStavRedakce(\App\Entity\StavRedakce::CEKA_NA_STANOVENI_RECENZENTU->value);
+            $clanek->setStavAutor(\App\Entity\StavAutor::PREDANO_RECENZENTUM->value);
+
+            $ukol->setDeadline($form->get('deadline')->getData());
+            $ukol->setClanek($clanek);
+            $ukol->setUser($form->get('user')->getData());
 
             $em->persist($ukol);
-
-
             $em->flush();
 
             return $this->redirectToRoute('app_home');
@@ -744,7 +771,8 @@ class HomeController extends AbstractController
             'ukol' => $ukol,
         ]);
     }
-/*
+
+    /*
     #[Route(path: '/edit-ukol/{id}', name: 'app_edit_ukol')]
     public function editUkol(ManagerRegistry $doctrine,$id): Response
     {
@@ -756,12 +784,84 @@ class HomeController extends AbstractController
     #[Route(path: '/ukoly-overview', name: 'app_ukoly_overview')]
     public function ukolyOverview(ManagerRegistry $doctrine): Response
     {
-        $ukoly= $doctrine->getManager()->getRepository(Ukol::class)->findAll();
+        if ($this->getUser()==null)
+        {
+            return new Response("Pristup zamitnut");
+        }
 
+        if (!in_array(Role::REDAKTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles()))
+        {
+            return new Response("Pristup zamitnut");
+        }
 
+        // Najdu vsechny ukoly
+        $ukoly = $doctrine->getManager()->getRepository(Ukol::class)->findAll();
+        $stavy = array();
+        $clanky = array();
+        $current_date = strtotime(date('d.m.Y'));
+        foreach ($ukoly as $ukol)
+        {
+            $clanek = $doctrine->getManager()->getRepository(Clanek::class)->findOneBy(['id' => $ukol->getClanek()->getId()]);
+            array_push($clanky, $clanek);
 
+            // Zjistit zda je ukol stale aktivni nebo ne
+            if ($current_date > strtotime($ukol->getDeadline())) {
+                array_push($stavy, "Neaktivni");
+            }
+            else {
+                array_push($stavy, "Aktivni");
+            }
+        }
 
-        return $this->render('home/ukoly-overview.html.twig', ['ukoly' => $ukoly]);
+        $ukoly = array_reverse($ukoly);
+        $stavy = array_reverse($stavy);
+        $clanky = array_reverse($clanky);
+
+        return $this->render('home/ukoly-overview.html.twig',
+            [
+                'ukoly' => $ukoly,
+                'clanky' => $clanky,
+                'stavy' => $stavy
+            ]);
     }
-    
+
+    #[Route(path: '/recenzent-ukoly-overview', name: 'app_recenzent_ukoly_overview')]
+    public function recenzentUkolyOverview(ManagerRegistry $doctrine): Response
+    {
+        if ($this->getUser() == null || !in_array(Role::RECENZENT->value, $this->getUser()->getRoles()))
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        $user = $doctrine->getManager()->getRepository(User::class)->findOneBy(['email' => $this->getUser()->getUserIdentifier()]);
+        $ukoly = $doctrine->getManager()->getRepository(Ukol::class)->findBy(['user' => $user->getId()]);
+        $clanky = array();
+        foreach ($ukoly as $ukol)
+        {
+            $clanek = $doctrine->getManager()->getRepository(Clanek::class)->findOneBy(['id' => $ukol->getClanek()->getId()]);
+            array_push($clanky, $clanek);
+        }
+
+        return $this->render('home/recenzent-ukoly-overview.html.twig',
+            [
+                'ukoly' => $ukoly,
+                'clanky' => $clanky
+            ]);
+    }
+
+    #[Route(path: '/ohodnotit-clanek', name: 'app_ohodnotit_clanek')]
+    public function ohodnotitClanek(ManagerRegistry $doctrine): Response
+    {
+        if ($this->getUser()==null || !in_array(Role::RECENZENT->value, $this->getUser()->getRoles()))
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        //////
+        /// ////
+        /// /////
+
+        return $this->render('home/ohodnotit-clanek.html.twig');
+    }
 }

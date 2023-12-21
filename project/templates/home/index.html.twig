@@ -17,9 +17,11 @@
       {% else %}
         <select name="autor-filter" onchange="this.form.submit()" class="form-control">
             <option value="">Autor ↓</option>
-            {% for i in 0..(authors|length - 1) %}
-            <option value="{{ authorsIds[i] }}">{{ authors[i] }}</option>
-            {% endfor %}
+            {% if authors != null %}
+                {% for i in 0..(authors|length - 1) %}
+                <option value="{{ authorsIds[i] }}">{{ authors[i] }}</option>
+                {% endfor %}
+            {% endif %}
         </select>
       {% endif %}
     </form>

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Prehled recenznich rizeni{% endblock %}
+{% block title %}Prehled pridelenych ukolu{% endblock %}
 
 {% block body %}
 <style>
@@ -9,16 +9,15 @@
 </style>
 
 <div class="example-wrapper">
-    <h1>Prehled clanku pro recenzi</h1>
+    <h1>Prehled pridelenych ukolu</h1>
     <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;" >
         <thead class="shadow-sm">
          <tr>
-            <th>Ukol</th>
+            <th>Ukoly</th>
             <th>Deadline</th>
-            <th>Nazev clanku</th>
-             <th>Stav clanku</th>
+            <th>Nazev clanky</th>
              <th>Clanek</th>
-            <th>Smazat</th>
+            <th>Ohodnotit</th>
          </tr>
          </thead>
          <tbody>
@@ -30,12 +29,11 @@
                  <td> {{ (i + 1) }} </td>
                 <td> {{ ukoly[i].getDeadline() }} </td>
                <td> {{ ukoly[i].getClanek().getNazevClanku() }}</td>
-                 <td>{{ stavy[i] }}</td>
                  <td>
-                     <a class="btn btn-primary" href="{{ path('app_author_article_detail', {'clanek_id': clanky[i].getId() }) }}">Zobrazit</a>
+                     <a class="btn btn-primary" href="{{ path('app_author_article_detail', {'clanek_id': clanky[i].getId() }) }}">Clanek</a>
                  </td>
                <td>
-                    <a class="btn btn-primary" href="{{ path('app_delete_ukol', {'id': ukoly[i].getId() }) }}">Smazat</a>
+                    <a class="btn btn-primary" href="{{ path('app_ohodnotit_clanek', {'clanek_id': clanky[i].getId() }) }}">Ohodnotit</a>
                </td>
              </tr>
             {% endfor %}

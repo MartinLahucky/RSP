@@ -49,7 +49,7 @@ class Clanek
     #[ORM\Column(length: 50)]
     private ?string $stav_autor = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 50, unique: true)]
     private ?string $nazev_clanku = null;
 
     #[ORM\ManyToOne]

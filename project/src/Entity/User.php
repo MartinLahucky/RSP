@@ -46,8 +46,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\ManyToMany(targetEntity: Ukol::class, mappedBy: 'user')]
-    private Collection $ukoly;
+    //#[ORM\ManyToMany(targetEntity: Ukol::class, mappedBy: 'user')]
+    //private Collection $ukoly;
 
     public function __construct()
     {
@@ -180,7 +180,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Ukol>
      */
-    public function getUkoly(): Collection
+    /*public function getUkoly(): Collection
     {
         return $this->ukoly;
     }
@@ -202,5 +202,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
-    }
+    }*/
 }
