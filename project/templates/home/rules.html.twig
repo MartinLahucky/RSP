@@ -55,17 +55,6 @@ Autor musí dodržovat stanovené termíny pro odevzdání článku a případn�
 <b>Zadávání Námitek:</b><br />
 
 V případě nesouhlasu s posudky má autor právo poslat redaktorovi své námitky formou oponentního formuláře.<br /><br /></p></div>
-    {% if app.user %}
-        {% if app.user.isAdmin %}
-            <div class="form-group mt-2 white">
-                    {{ form_start(form) }}
-                    {{ form_label(form.file, 'Soubor', {'label_attr': {'class': 'col-form-label col-sm-2 white text-center'}}) }}
-                    {{ form_widget(form.file, {'attr': {'class': ''}}) }}<br />
-                    <button type="submit" class="btn btn-success">Uložit</button>
-                    {{ form_end(form) }}
-            </div>
-        {% endif %}
-    {% endif %}
 </div>
   </div>
 </div>

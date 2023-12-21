@@ -25,7 +25,13 @@
             <td> {{ (i + 1) }} </td>
             <td> {{ clanek_verze[i].getDatumNahrani() }} </td>
            <td>
-                <a class="btn btn-primary" href="{{ path('app_article_comments', {'verze_clanku_id': clanek_verze[i].getId() }) }}">Zobrazit</a>
+               {% if (app.user.isAutor() and app.user.isRecenzent() == false) or app.user.isRedaktor() or app.user.isSefredaktor() %}
+                <a class="btn btn-primary" href="{{ path('app_article_comments', {'verze_clanku_id': clanek_verze[i].getId() }) }}">Zobrazit</a><br/>
+                {% endif %}
+
+               {% if app.user.isRecenzent() or app.user.isRedaktor() or app.user.isSefredaktor() %}
+                   <a class="btn btn-primary" href="{{ path('app_redaction_comments', {'verze_clanku_id': clanek_verze[i].getId() }) }}">Komentare redakce</a><br/>
+               {% endif %}
            </td>
          </tr>
         {% endfor %}

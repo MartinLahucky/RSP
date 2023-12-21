@@ -449,7 +449,6 @@ class HomeController extends AbstractController
             $verze_clanek->setClanek($clanek);
             $verze_clanek->setDatumNahrani(date('d.m.Y'));
             $verze_clanek->setSouborClanek($soubor->getClientOriginalName());
-            $verze_clanek->setZpristupnenRecenzentum(false);
 
             // Get the entity manager
             $em = $doctrine->getManager();
@@ -511,17 +510,6 @@ class HomeController extends AbstractController
         $ukol = $em->getRepository(Ukol::class)->findOneBy(['clanek' => $clanek->getId()]);
         if ($ukol)
         {
-            // Nacist vsechny komentare k ukolu
-            $komentare_ukol = $em->getRepository(KomentarUkol::class)->findBy(['ukol' => $ukol->getId()]);
-            if ($komentare_ukol)
-            {
-                foreach ($komentare_ukol as $ku)
-                {
-                    $em->remove($ku);
-                    $em->flush();
-                }
-            }
-
             $em->remove($ukol);
             $em->flush();
         }
@@ -532,11 +520,21 @@ class HomeController extends AbstractController
         {
             foreach ($verze_clanku as $vc)
             {
-                // Nacist komentare k dane verzi clanku
+                // Nacist komentare k dane verzi clanku a smazat
                 $komentare_clanek = $em->getRepository(KomentarClanek::class)->findBy(['verze_clanku' => $vc->getId()]);
                 if ($komentare_clanek)
                 {
                     foreach ($komentare_clanek as $kc)
+                    {
+                        $em->remove($kc);
+                        $em->flush();
+                    }
+                }
+
+                $komentare = $em->getRepository(KomentarUkol::class)->findBy(['verze_clanku' => $vc->getId()]);
+                if ($komentare)
+                {
+                    foreach ($komentare as $kc)
                     {
                         $em->remove($kc);
                         $em->flush();
@@ -852,88 +850,66 @@ class HomeController extends AbstractController
             ]);
     }
 
-    #[Route(path: '/ohodnotit-clanek', name: 'app_ohodnotit_clanek')]
-    public function ohodnotitClanek(ManagerRegistry $doctrine): Response
+    // Zaslani posudku
+    #[Route(path: '/posudek/{clanek_id}', name: 'app_posudek')]
+    public function posudek(Request $request, ManagerRegistry $doctrine, $clanek_id): Response
     {
-        if ($this->getUser()==null || !in_array(Role::RECENZENT->value, $this->getUser()->getRoles()))
+        if ($this->getUser()==null)
         {
             return new Response("Pristup zamitnut");
         }
 
-        //////
-        /// ////
-        /// /////
+        if (!in_array(Role::RECENZENT->value, $this->getUser()->getRoles())) {
+            return new Response("Pristup zamitnut");
+        }
 
-        return $this->render('home/ohodnotit-clanek.html.twig');
+        $form = $this->createForm(PosudekType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $em = $doctrine->getManager();
+
+            $aktualnost = $form->get('aktualnost')->getData();
+            $originalita = $form->get('originalita')->getData();
+            $odbornaUroven = $form->get('odbornaUroven')->getData();
+            $jazykovaUroven = $form->get('jazykovaUroven')->getData();
+            $soubor = $form->get('file')->getData();
+
+            $posudek = new Posudek();
+            $posudek->setAktualnost($aktualnost);
+            $posudek->setOriginalita($originalita);
+            $posudek->setOdbornaUroven($odbornaUroven);
+            $posudek->setJazykovaUroven($jazykovaUroven);
+            $posudek->setPosudekSoubor($soubor->getClientOriginalName());
+            $posudek->setClanek($em->getRepository(Clanek::class)->findOneBy(['id' => $clanek_id]));
+            $posudek->setUser($em->getRepository(User::class)->findOneBy(['email' => $this->getUser()->getUserIdentifier()]));
+
+            $em->persist($posudek);
+            $em->flush();
+
+            // Ulozeni souboru (posudku)
+            {
+                $public_dir = $this->getParameter('public_dir');
+                $dir_path = $public_dir . '/posudky/' . $posudek->getId();
+
+                $fs = new Filesystem();
+                $fs->mkdir($dir_path);
+                $soubor->move($dir_path, $soubor->getClientOriginalName());
+            }
+
+            return $this->redirectToRoute('app_recenzent_ukoly_overview');
+        }
+
+        return $this->render('home/test-hodnoceni.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
 
     #[Route(path: '/rules', name: 'app_rules')]
     public function rules(Request $request, ManagerRegistry $doctrine): Response
     {
-        if ($this->getUser()==null) 
-        {
-            return new Response("Pristup zamitnut");
-        }
-
-        if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles())) {
-            return new Response("Pristup zamitnut");
-        }
-
-        // Create the form for the Tisk entity
-        
-        $form = $this->createForm(RulesType::class);
-
-        // Handle the request
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid())
-        {
-            $soubor = $form->get('file')->getData();
-
-            $extension = new UnicodeString(pathinfo($soubor->getClientOriginalName(), PATHINFO_EXTENSION));
-            $ext = $extension->lower();
-            if ($ext != "pdf" && $ext != "docx" && $ext != "doc") {
-                return new Response("Pripona souboru musi byt .pdf nebo .doc(x)!");
-            }
-
-            {
-                $public_dir = $this->getParameter('public_dir');
-                $dir_path_rule = $public_dir . '/rules/';
-
-                $fs = new Filesystem();
-                $fs->mkdir($dir_path_rule);
-                $soubor->move($dir_path_rule, $soubor->getClientOriginalName());
-            }
-        }
-
-
-        return $this->render('home/rules.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    //test hodnoceni
-    #[Route(path: '/test-hodnoceni', name: 'app-test_hodnoceni')]
-    public function testHodnoceni(Request $request, ManagerRegistry $doctrine): Response
-    {   
-        if ($this->getUser()==null) 
-        {
-            return new Response("Pristup zamitnut");
-        }
-
-        if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles())) {
-            return new Response("Pristup zamitnut");
-        }
-
-        // Create the form for the Tisk entity
-        $form = $this->createForm(PosudekType::class);
-
-        // Handle the request
-        $form->handleRequest($request);
-
-        return $this->render('home/test-hodnoceni.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        return $this->render('home/rules.html.twig');
     }
 }

@@ -126,9 +126,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function isAdmin(): bool
     {
-        // Assuming $this->roles is an array of Role enum objects
         foreach ($this->roles as $role) {
             if ($role === \App\Entity\Role::ADMIN->value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isRecenzent(): bool
+    {
+        foreach ($this->roles as $role) {
+            if ($role === \App\Entity\Role::RECENZENT->value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isRedaktor(): bool
+    {
+        foreach ($this->roles as $role) {
+            if ($role === \App\Entity\Role::REDAKTOR->value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isSefredaktor(): bool
+    {
+        foreach ($this->roles as $role) {
+            if ($role === \App\Entity\Role::SEFREDAKTOR->value) {
                 return true;
             }
         }

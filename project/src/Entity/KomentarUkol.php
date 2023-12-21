@@ -16,7 +16,8 @@ class KomentarUkol
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Ukol $ukol = null;
+    private ?VerzeClanku $verze_clanku = null;
+    //private ?Ukol $ukol = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -33,7 +34,7 @@ class KomentarUkol
         return $this->id;
     }
 
-    public function getUkol(): ?Ukol
+    /*public function getUkol(): ?Ukol
     {
         return $this->ukol;
     }
@@ -42,6 +43,17 @@ class KomentarUkol
     {
         $this->ukol = $ukol;
 
+        return $this;
+    }*/
+
+    public function getVerzeClanku(): ?VerzeClanku
+    {
+        return $this->verze_clanku;
+    }
+
+    public function setVerzeClanku(VerzeClanku $verzeClanku): static
+    {
+        $this->verze_clanku = $verzeClanku;
         return $this;
     }
 

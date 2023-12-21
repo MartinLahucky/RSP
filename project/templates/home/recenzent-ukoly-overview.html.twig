@@ -17,7 +17,7 @@
             <th>Deadline</th>
             <th>Nazev clanky</th>
              <th>Clanek</th>
-            <th>Ohodnotit</th>
+            <th>Zaslat posudek</th>
          </tr>
          </thead>
          <tbody>
@@ -30,10 +30,10 @@
                 <td> {{ ukoly[i].getDeadline() }} </td>
                <td> {{ ukoly[i].getClanek().getNazevClanku() }}</td>
                  <td>
-                     <a class="btn btn-primary" href="{{ path('app_author_article_detail', {'clanek_id': clanky[i].getId() }) }}">Clanek</a>
+                     <a class="btn btn-primary" href="{{ path('app_author_article_detail', {'clanek_id': clanky[i].getId() }) }}">Zobrazit</a>
                  </td>
                <td>
-                    <a class="btn btn-primary" href="{{ path('app_ohodnotit_clanek', {'clanek_id': clanky[i].getId() }) }}">Ohodnotit</a>
+                    <a class="btn btn-primary" href="{{ path('app_posudek', {'clanek_id': clanky[i].getId() }) }}">Zaslat</a>
                </td>
              </tr>
             {% endfor %}

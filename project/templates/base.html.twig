@@ -34,14 +34,17 @@
                 </a> 
               </ul>
 
+                <a class="nav-link btn m-1 p-1 white" href="{{ path('app_rules') }}">Pravidla</a>
                 {% if app.user %}
+                    {% if app.user.isRecenzent() %}
+                        <a class="nav-link btn m-1 p-1 white" href="{{ path('app_recenzent_ukoly_overview') }}">Ukoly</a>
+                    {% endif %}
                     {% if app.user.isAdmin %}
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_manage_content') }}">Správa obsahu</a>
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_user_overview') }}">Správa uživatelů</a>
                     {% endif %}
                     {% if app.user.isAutor %}
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_author_articles_overview') }}">Moje články</a>
-                        <a class="nav-link btn m-1 p-1 white" href="{{ path('app_rules') }}">Pravidla</a>
                     {% endif %}
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_user_profile') }}">Profil</a>
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_logout') }}">Logout</a>
@@ -49,7 +52,6 @@
                     <a class="nav-link btn m-1 p-1 white" href="{{ path('app_register') }}">Registrace</a>
                     <a class="nav-link btn m-1 p-1 white" href="{{ path('app_login') }}">Přihlášení</a>
                 {% endif %}
-            
                 </div>
                 <form action="{{ path('app_home') }}" method="get">
                   <input type="text" name="search" placeholder="Hledat clanky...">
@@ -74,14 +76,18 @@
                 <h1 class="white">KERNEL</h1>
                 </a> 
               </ul>
+
+                <a class="nav-link btn m-1 p-1 white" href="{{ path('app_rules') }}">Pravidla</a>
                 {% if app.user %}
+                    {% if app.user.isRecenzent() %}
+                        <a class="nav-link btn m-1 p-1 white" href="{{ path('app_recenzent_ukoly_overview') }}">Ukoly</a>
+                    {% endif %}
                     {% if app.user.isAdmin %}
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_manage_content') }}">Správa obsahu</a>
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_user_overview') }}">Správa uživatelů</a>
                     {% endif %}
                     {% if app.user.isAutor %}
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_author_articles_overview') }}">Moje články</a>
-                        <a class="nav-link btn m-1 p-1 white" href="{{ path('app_rules') }}">Pravidla</a>
                     {% endif %}
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_user_profile') }}">Profil</a>
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_logout') }}">Logout</a>
@@ -89,7 +95,6 @@
                     <a class="nav-link btn m-1 p-1 white" href="{{ path('app_register') }}">Registrace</a>
                     <a class="nav-link btn m-1 p-1 white" href="{{ path('app_login') }}">Přihlášení</a>
                 {% endif %}
-            
                 </div>
                 <form action="{{ path('app_home') }}" method="get">
                   <input type="text" name="search" placeholder="Hledat clanky...">
