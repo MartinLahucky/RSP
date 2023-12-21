@@ -8,9 +8,13 @@ use App\Entity\Namitka;
 use App\Entity\Role;
 use App\Entity\User;
 use App\Entity\VerzeClanku;
+use App\Form\CreateNamitkaType;
+use App\Form\KomentarType;
 use App\Form\UserRolesFormType;
+use App\Form\UserEditFormType;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -72,13 +76,13 @@ class SecurityController extends AbstractController
     {
         $role = $doctrine->getManager()->getRepository(User::class)->find($id); //Najde na základě id záznam
         if (!$role) {
-            throw $this->createNotFoundException('Nebyla nalezena role s tímto id ' . $id); //Error pokud není záznam nalezen
+            return new Response("Chyba hledani uzitele");
         }
 
         // Check if the user has the right to edit this role 'ADMIN'
         if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         $form = $this->createForm(UserRolesFormType::class, $role);  //Tvorba nového formuléře podle vzoru ProductFormType
@@ -111,11 +115,11 @@ class SecurityController extends AbstractController
     {   
         if ($this->getUser()==null) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         // Create a new empty User entity
         $user = new User();
@@ -158,17 +162,72 @@ class SecurityController extends AbstractController
         ]);
     }
 
+    #[Route(path: '/user-profile', name: 'app_user_profile')]
+    public function userProfile(ManagerRegistry $doctrine): Response
+    {
+        if ($this->getUser()==null) 
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        $user = $doctrine->getManager()->getRepository(User::class)->findOneBy(['email' => $this->getUser()->getUserIdentifier()]);
+        return $this->render('security/user-profile.html.twig', [
+            'user' => $user
+        ]);
+    }
+
+    #[Route(path: '/edit-user-profile', name: 'app_edit_user_profile')]
+    public function editUserProfile(Request $request, ManagerRegistry $doctrine, UserPasswordHasherInterface $passwordEncoder): Response
+    {
+        if ($this->getUser()==null) 
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        $user = $doctrine->getManager()->getRepository(User::class)->findOneBy(['email' => $this->getUser()->getUserIdentifier()]);
+
+        $form = $this->createForm(UserEditFormType::class, $user); 
+
+        $form->handleRequest($request);  //Předání dat z formuláře
+
+        if ($form->isSubmitted()) 
+        {
+            if($form->isValid())
+            {
+                $password = $form->get('password')->getData();
+
+                if (!empty($password)) 
+                {
+                    $encodedPassword = $passwordEncoder->hashPassword($user, $password);
+                    $user->setPassword($encodedPassword);
+                }
+
+                $em = $doctrine->getManager(); // Objekt pro práci s entitami
+
+                $em->flush(); // Provedení změn v databázi
+
+                return $this->redirectToRoute('app_home');
+            }
+            //$doctrine()->getManager()->refresh();
+            $doctrine->getManager()->refresh($user);
+        }
+
+        return $this->render('security/edit-user-profile.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
     #[Route(path: '/user-overview', name: 'app_user_overview')]
     public function userOverview(ManagerRegistry $doctrine): Response
     {
         if ($this->getUser()==null) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         
         if (!in_array(Role::ADMIN->value, $this->getUser()->getRoles())) 
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         $users = $doctrine->getRepository(User::class)->findAll();
@@ -186,10 +245,10 @@ class SecurityController extends AbstractController
         // Zkontroluje prava
         if ($this->getUser() == null)
         {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles())) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         // Nacteni clanku
@@ -200,10 +259,6 @@ class SecurityController extends AbstractController
         }
 
         $clanky = $manager->getRepository(Clanek::class)->findBy(['user' => $user->getId()]);
-        if (!$clanky) {
-            return new Response('Nebyly nalezeny zadne clanky'); //Error pokud není záznam nalezen
-        }
-
         // Nacteni prvni verze clanku ke kazdemu clanku, abych mohl mohl zobrazit info ke kazdemu clanku
         $clanek_verze = array();
         foreach ($clanky as $clanek)
@@ -224,10 +279,10 @@ class SecurityController extends AbstractController
     {
         // Zkontroluje prava
         if ($this->getUser() == null) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles())) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
 
         // Nacteni verzi clanku
@@ -245,11 +300,11 @@ class SecurityController extends AbstractController
 
     // Zde budou zobrazeno konverzace mezi autorem a redaktorem a bude zde link na stazeni dane verze clanku
     #[Route(path: '/article-comments/{verze_clanku_id}', name: 'app_article_comments')]
-    public function articleComments(ManagerRegistry $doctrine, $verze_clanku_id): Response
+    public function articleComments(Request $request, ManagerRegistry $doctrine, $verze_clanku_id): Response
     {
         // Zkontroluje prava
         if ($this->getUser() == null) {
-            throw $this->createAccessDeniedException("lol nemáš práva xD");
+            return new Response("Pristup zamitnut");
         }
         if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles())
             && !in_array(Role::REDAKTOR->value, $this->getUser()->getRoles()))
@@ -264,15 +319,32 @@ class SecurityController extends AbstractController
             return new Response("Verze clanku nenalezena");
         }
 
+        $form = $this->createForm(KomentarType::class);
+        $form->handleRequest($request);  //Předání dat z formuláře
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $komentar_clanek = new KomentarClanek();
+            $komentar_clanek->setVerzeClanku($verze_clanku);
+            $komentar_clanek->setUser($this->getUser());
+            $komentar_clanek->setDatum(date('d.m.Y'));
+            $komentar_clanek->setText($form->get('komentar')->getData());
+
+            $manager->persist($komentar_clanek);
+            $manager->flush();
+
+            return $this->redirectToRoute('app_article_comments', ['verze_clanku_id' => $verze_clanku->getId()]);
+        }
+
         // Nacteni komentaru
         $komentare = $manager->getRepository(KomentarClanek::class)->findBy(['verze_clanku' => $verze_clanku->getId()]);
 
         // Nacteni namitky
         $namitka = $manager->getRepository(Namitka::class)->findOneBy(['clanek' => $verze_clanku->getClanek()]);
 
-        // TODO: Ve twigu chybi textove pole pro vytvoreni noveho komentare
         return $this->render('security/article-comments.html.twig',
         [
+            'form' => $form->createView(),
             'clanek_verze' => $verze_clanku,
             'komentare' => $komentare,
             'namitka' => $namitka,
@@ -299,5 +371,102 @@ class SecurityController extends AbstractController
         [
             'namitka' => $namitka,
         ]);
+    }
+
+    #[Route(path: '/create-namitka/{clanek_id}', name: 'app_create_namitka')]
+    public function vytvorNamitku(Request $request, ManagerRegistry $doctrine, $clanek_id): Response
+    {
+        if ($this->getUser() == null ||
+            !in_array(Role::AUTOR->value, $this->getUser()->getRoles())){
+            return new Response("Pristup zamitnut");
+        }
+
+        $em = $doctrine->getManager();
+        $clanek = $em->getRepository(Clanek::class)->findOneBy(['id' => $clanek_id]);
+        if (!$clanek) {
+            return new Response("Chyba nacitani clanku!");
+        }
+
+        $form = $this->createForm(CreateNamitkaType::class);
+        $form->handleRequest($request);  //Předání dat z formuláře
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $namitka = new Namitka();
+            $namitka->setClanek($clanek);
+            $namitka->setDatum(date('d.m.Y'));
+            $namitka->setTextNamitky($form->get('text_namitky')->getData());
+
+            $em->persist($namitka);
+            $em->flush();
+
+            return $this->redirectToRoute('app_home');
+        }
+
+        return $this->render('security/create-namitka.html.twig',
+        [
+            'form' => $form->createView(),
+            'clanek' => $clanek,
+        ]);
+    }
+
+    #[Route(path: '/prehled-clanku-schvaleni', name: 'app_prehled_clanku_schvaleni')]
+    public function prehledClankuSchvaleni(ManagerRegistry $doctrine): Response
+    {
+        if ($this->getUser() == null ||
+            !in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles())){
+            return new Response("Pristup zamitnut");
+        }
+
+        $clanky = $doctrine->getManager()->getRepository(Clanek::class)->findBy(['stav_redakce' => \App\Entity\StavRedakce::VYJADRENI_SEFREDAKTORA->value]);
+        return $this->render('security/prehled-clanku-schvaleni.html.twig',
+        [
+            'clanky' => $clanky,
+        ]);
+    }
+
+    #[Route(path: '/zmenit-stav-clanku/{clanek_id}', name: 'app_zmenit_stav_clanku')]
+    public function zmenitStavClanku(Request $request, ManagerRegistry $doctrine, $clanek_id): Response
+    {
+        if ($this->getUser() == null) {
+            return new Response("Pristup zamitnut");
+        }
+        if (!in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::REDAKTOR->value, $this->getUser()->getRoles()))
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        // Pokud mam zobrazit formular
+        if ($request->query->get('formular') == true)
+        {
+            ///////
+        }
+
+        else {
+            $stav_autor = $request->query->get('stav_autor');
+            $stav_redakce = $request->query->get('stav_redakce');
+
+            $em = $doctrine->getManager();
+            $clanek = $em->getRepository(Clanek::class)->find($clanek_id);
+            if (!$clanek) {
+                return new Response("Chyba aktualizovani clanku!");
+            }
+
+            if ($stav_autor) {
+                $clanek->setStavAutor($stav_autor);
+            }
+            if ($stav_redakce) {
+                $clanek->setStavRedakce($stav_redakce);
+            }
+
+            $em->persist($clanek);
+            $em->flush();
+
+            // Presmerovat zpet
+            return $this->redirect($request->headers->get('referer'));
+        }
+
+        return new Response();
     }
 }

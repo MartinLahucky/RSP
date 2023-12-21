@@ -46,8 +46,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\ManyToMany(targetEntity: Ukol::class, mappedBy: 'user')]
-    private Collection $ukoly;
+    //#[ORM\ManyToMany(targetEntity: Ukol::class, mappedBy: 'user')]
+    //private Collection $ukoly;
 
     public function __construct()
     {
@@ -128,7 +128,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // Assuming $this->roles is an array of Role enum objects
         foreach ($this->roles as $role) {
-            if ($role === "ADMIN") {
+            if ($role === \App\Entity\Role::ADMIN->value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isAutor(): bool
+    {
+        // Assuming $this->roles is an array of Role enum objects
+        if (!$this->roles)
+        {
+            return true; // Protoze default role je autor
+        }
+
+        foreach ($this->roles as $role) {
+            if ($role === \App\Entity\Role::AUTOR->value) {
                 return true;
             }
         }
@@ -163,7 +180,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Ukol>
      */
-    public function getUkoly(): Collection
+    /*public function getUkoly(): Collection
     {
         return $this->ukoly;
     }
@@ -185,5 +202,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
-    }
+    }*/
 }

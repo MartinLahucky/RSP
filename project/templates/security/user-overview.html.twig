@@ -28,7 +28,7 @@
           </p>
           <div class="mt-auto d-flex justify-content-between">
           <a href="{{ path('app_select_role', {'id': user.getId() }) }}" class="card-link btn btn-primary w-50 bg-red-soft">Edit</a>
-          <a href="#" class="card-link w-50">Delete (todo)</a>
+          <a href="{{ path('app_delete_user', {'id': user.getId() }) }}" class="card-link btn btn-primary w-50 bg-red-soft">Smazat</a>
         </div>
         </div>
       </div>

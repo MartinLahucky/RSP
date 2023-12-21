@@ -26,6 +26,7 @@ enum StavRedakce: string
     case POSUDEK_2_DORUCEN = "POSUDEK 2 DORUCEN";
     case POSUDKY_ODESLANY_AUTOROVI = "POSUDKY ODESLANY AUTOROVI";
     case UPRAVA_TEXTU_AUTOREM = "UPRAVA TEXTU AUTOREM";
+    case VYJADRENI_SEFREDAKTORA = "CEKANI NA VYJADRENI SEFREDAKTORA";
     case PRIJATO = "PRIJATO";
     case ZAMITNUTO = "ZAMITNUTO";
 }
@@ -38,7 +39,7 @@ class Clanek
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'stav_autor')]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?RecenzniRizeni $recenzni_rizeni = null;
 
@@ -48,7 +49,7 @@ class Clanek
     #[ORM\Column(length: 50)]
     private ?string $stav_autor = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 50, unique: true)]
     private ?string $nazev_clanku = null;
 
     #[ORM\ManyToOne]

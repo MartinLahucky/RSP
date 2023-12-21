@@ -16,7 +16,7 @@ class RecenzniRizeni
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Tisk $tisk = null;
 
@@ -26,12 +26,9 @@ class RecenzniRizeni
     #[ORM\Column(length: 10)]
     private ?string $do = null;
 
-    #[ORM\OneToMany(mappedBy: 'recenzni_rizeni', targetEntity: Clanek::class, orphanRemoval: true)]
-    private Collection $clanky;
-
     public function __construct()
     {
-        $this->clanky = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -71,36 +68,6 @@ class RecenzniRizeni
     public function setDo(string $do): static
     {
         $this->do = $do;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Clanek>
-     */
-    public function getClanek(): Collection
-    {
-        return $this->clanky;
-    }
-
-    public function addClanek(Clanek $clanek): static
-    {
-        if (!$this->clanky->contains($clanek)) {
-            $this->clanky->add($clanek);
-            $clanek->setRecenzniRizeni($this);
-        }
-
-        return $this;
-    }
-
-    public function removeClanek(Clanek $clanek): static
-    {
-        if ($this->clanky->removeElement($clanek)) {
-            // set the owning side to null (unless already changed)
-            if ($clanek->getRecenzniRizeni() === $this) {
-                $clanek->setRecenzniRizeni(null);
-            }
-        }
 
         return $this;
     }
