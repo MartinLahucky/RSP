@@ -12,6 +12,7 @@ use App\Entity\RecenzniRizeni;
 use App\Entity\Tisk;
 use App\Entity\Ukol;
 use App\Entity\VerzeClanku;
+use App\Form\VerzeClanekFormType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -483,6 +484,60 @@ class HomeController extends AbstractController
         ]);
     }
 
+    #[Route(path: '/create-verze-clanek/{clanek_id}', name: 'app_create_verze_clanek')]
+    public function createVerzeClanek(Request $request, ManagerRegistry $doctrine, $clanek_id): Response
+    {
+        if ($this->getUser() == null) {
+            return new Response("Pristup zamitnut");
+        }
+
+        if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles())) {
+            return new Response("Pristup zamitnut");
+        }
+
+        $em = $doctrine->getManager();
+        $clanek = $em->getRepository(Clanek::class)->findOneBy(['id' => $clanek_id]);
+        if (!$clanek) {
+            return new Response("Chyba nacitani clanku!");
+        }
+        $verze_clanek = new VerzeClanku();
+
+        $form = $this->createForm(VerzeClanekFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $soubor = $form->get('file')->getData();
+            if (!$soubor) {
+                return new Response("Chyba nacitani odeslaneho souboru!");
+            }
+
+            $verze_clanek->setClanek($clanek);
+            $verze_clanek->setDatumNahrani(date('d.m.Y'));
+            $verze_clanek->setSouborClanek($soubor->getClientOriginalName());
+
+            $em->persist($verze_clanek);
+            $em->flush();
+
+            // Ulozeni clanku
+            {
+                $public_dir = $this->getParameter('public_dir');
+                $dir_path_clanek = $public_dir . '/clanky/' . $clanek->getId();
+                $dir_path_verze = $dir_path_clanek . '/' . $verze_clanek->getId();
+
+                $fs = new Filesystem();
+                $fs->mkdir($dir_path_verze);
+                $soubor->move($dir_path_verze, $soubor->getClientOriginalName());
+            }
+
+            return $this->redirectToRoute('app_author_article_detail', ['clanek_id' => $clanek->getId()]);
+        }
+
+        return $this->render('home/create-clanek-verze.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
     // Smazani vsech radku v ostatnich entitach, ktere odkazuji na konkretni clanek
     private function smazatClanek(Clanek &$clanek, ManagerRegistry &$doctrine): void
     {
@@ -714,7 +769,6 @@ class HomeController extends AbstractController
         if ($form->isSubmitted() && $form->isValid())
         {
             $em = $doctrine->getManager();
-
             $clanek = $form->get('clanek')->getData();
             if (!$clanek) {
                 return new Response("Musite vybrat clanek pro hodnoceni!");

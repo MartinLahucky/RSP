@@ -39,6 +39,9 @@
                     {% if app.user.isRecenzent() %}
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_recenzent_ukoly_overview') }}">Ukoly</a>
                     {% endif %}
+                    {% if app.user.isSefredaktor() %}
+                        <a class="nav-link btn m-1 p-1 white" href="{{ path('app_prehled_clanku_schvaleni') }}">Schvaleni clanku</a>
+                    {% endif %}
                     {% if app.user.isAdmin %}
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_manage_content') }}">Správa obsahu</a>
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_user_overview') }}">Správa uživatelů</a>

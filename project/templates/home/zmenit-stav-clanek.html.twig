@@ -5,6 +5,11 @@
   <div class="row justify-content-center">
     <div class="col-xs-4 login m-3">
           <h1 class="p-3 headingLogin text-center m-3">Změnit stav</h1>
+        <div class="form-group mt-2 white">
+            <b style="color: white; font-size: 1.25em;">Aktualni stav autora:</b> {{ clanek.getStavAutor() }}<br/>
+            <b style="color: white; font-size: 1.25em;">Aktualni stav redakce:</b> {{ clanek.getStavRedakce() }}<br/><br/>
+        </div>
+
              {{ form_start(form) }}
 <div class="form-group mt-2 white">
     {{ form_label(form.stavAutor, 'Stav autora', {'label_attr': {'class': 'col-form-label col-sm-2 white text-center'}}) }}<br />

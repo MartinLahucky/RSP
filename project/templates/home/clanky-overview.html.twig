@@ -34,7 +34,7 @@
                    <small><i>{{ clanky[i].getUser().getEmail() }}</i></small>
                 </td>
                  <td>
-                     <a class="btn btn-primary" href="{{ path('app_zmenit_stav_clanku', {'clanek_id': clanky[i].getId() }) }}">Zmenit</a>
+                     <a class="btn btn-primary" href="{{ path('app_zmenit_stav_clanku_formular', {'clanek_id': clanky[i].getId() }) }}">Zmenit</a>
                  </td>
                  <td>
                      <a class="btn btn-primary" href="{{ path('app_author_article_detail', {'clanek_id': clanky[i].getId() }) }}">Detail</a>

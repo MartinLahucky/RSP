@@ -15,6 +15,7 @@ use App\Form\CreateNamitkaType;
 use App\Form\KomentarType;
 use App\Form\UserRolesFormType;
 use App\Form\UserEditFormType;
+use App\Form\ZmenaStavuType;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
@@ -534,21 +535,60 @@ class SecurityController extends AbstractController
             return new Response("Pristup zamitnut");
         }
 
-        // Pokud mam zobrazit formular
-        if ($request->query->get('formular') == true)
-        {
-            ///////
+        $em = $doctrine->getManager();
+        $clanek = $em->getRepository(Clanek::class)->find($clanek_id);
+        if (!$clanek) {
+            return new Response("Chyba aktualizovani clanku!");
         }
 
-        else {
-            $stav_autor = $request->query->get('stav_autor');
-            $stav_redakce = $request->query->get('stav_redakce');
+        $stav_autor = $request->query->get('stav_autor');
+        $stav_redakce = $request->query->get('stav_redakce');
 
-            $em = $doctrine->getManager();
-            $clanek = $em->getRepository(Clanek::class)->find($clanek_id);
-            if (!$clanek) {
-                return new Response("Chyba aktualizovani clanku!");
-            }
+        $em = $doctrine->getManager();
+        $clanek = $em->getRepository(Clanek::class)->find($clanek_id);
+        if (!$clanek) {
+            return new Response("Chyba aktualizovani clanku!");
+        }
+
+        if ($stav_autor) {
+            $clanek->setStavAutor($stav_autor);
+        }
+        if ($stav_redakce) {
+            $clanek->setStavRedakce($stav_redakce);
+        }
+
+        $em->persist($clanek);
+        $em->flush();
+
+        // Presmerovat zpet
+        return $this->redirect($request->headers->get('referer'));
+    }
+
+    #[Route(path: '/zmenit-stav-clanku-formular/{clanek_id}', name: 'app_zmenit_stav_clanku_formular')]
+    public function zmenitStavClankuFormular(Request $request, ManagerRegistry $doctrine, $clanek_id): Response
+    {
+        if ($this->getUser() == null) {
+            return new Response("Pristup zamitnut");
+        }
+        if (!in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::REDAKTOR->value, $this->getUser()->getRoles()))
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        $em = $doctrine->getManager();
+        $clanek = $em->getRepository(Clanek::class)->find($clanek_id);
+        if (!$clanek) {
+            return new Response("Chyba aktualizovani clanku!");
+        }
+
+        $form = $this->createForm(ZmenaStavuType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $stav_autor = $form->get('stavAutor')->getData();
+            $stav_redakce = $form->get('stavRedakce')->getData();
 
             if ($stav_autor) {
                 $clanek->setStavAutor($stav_autor);
@@ -560,10 +600,9 @@ class SecurityController extends AbstractController
             $em->persist($clanek);
             $em->flush();
 
-            // Presmerovat zpet
-            return $this->redirect($request->headers->get('referer'));
+            return $this->redirectToRoute('app_clanky_overview');
         }
 
-        return new Response();
+        return $this->render('home/zmenit-stav-clanek.html.twig', ['form' => $form, 'clanek' => $clanek]);
     }
 }
