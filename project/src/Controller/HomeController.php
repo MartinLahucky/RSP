@@ -25,6 +25,8 @@ use App\Form\ClanekFormType;
 use App\Form\RecenzniRizeniFormType;
 use App\Form\TiskFormType;
 use App\Form\UkolFormType;
+use App\Form\PosudekType;
+use App\Form\RulesType;
 use DateTime;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -863,5 +865,75 @@ class HomeController extends AbstractController
         /// /////
 
         return $this->render('home/ohodnotit-clanek.html.twig');
+    }
+
+
+    #[Route(path: '/rules', name: 'app_rules')]
+    public function rules(Request $request, ManagerRegistry $doctrine): Response
+    {
+        if ($this->getUser()==null) 
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles())) {
+            return new Response("Pristup zamitnut");
+        }
+
+        // Create the form for the Tisk entity
+        
+        $form = $this->createForm(RulesType::class);
+
+        // Handle the request
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $soubor = $form->get('file')->getData();
+
+            $extension = new UnicodeString(pathinfo($soubor->getClientOriginalName(), PATHINFO_EXTENSION));
+            $ext = $extension->lower();
+            if ($ext != "pdf" && $ext != "docx" && $ext != "doc") {
+                return new Response("Pripona souboru musi byt .pdf nebo .doc(x)!");
+            }
+
+            {
+                $public_dir = $this->getParameter('public_dir');
+                $dir_path_rule = $public_dir . '/rules/';
+
+                $fs = new Filesystem();
+                $fs->mkdir($dir_path_rule);
+                $soubor->move($dir_path_rule, $soubor->getClientOriginalName());
+            }
+        }
+
+
+        return $this->render('home/rules.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    //test hodnoceni
+    #[Route(path: '/test-hodnoceni', name: 'app-test_hodnoceni')]
+    public function testHodnoceni(Request $request, ManagerRegistry $doctrine): Response
+    {   
+        if ($this->getUser()==null) 
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles())) {
+            return new Response("Pristup zamitnut");
+        }
+
+        // Create the form for the Tisk entity
+        $form = $this->createForm(PosudekType::class);
+
+        // Handle the request
+        $form->handleRequest($request);
+
+        return $this->render('home/test-hodnoceni.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 }
