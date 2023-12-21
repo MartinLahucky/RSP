@@ -17,17 +17,45 @@ class PosudekType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('aktualnost', StarRatingType::class, [
+            ->add('aktualnost', ChoiceType::class, [
                 'label' => 'Aktualnost',
+                'choices'  => [
+                    '1' => '1',
+                    '2' => '2',
+                    '3' => '3',
+                    '4' => '4',
+                    '5' => '5',
+                    ],
             ])
-            ->add('originalita', StarRatingType::class, [
+            ->add('originalita', ChoiceType::class, [
                 'label' => 'Originalita',
+                'choices'  => [
+                    '1' => '1',
+                    '2' => '2',
+                    '3' => '3',
+                    '4' => '4',
+                    '5' => '5',
+                    ],
             ])
-            ->add('odbornaUroven', StarRatingType::class, [
+            ->add('odbornaUroven', ChoiceType::class, [
                 'label' => 'Odborná úroveň',
+                'choices'  => [
+                    '1' => '1',
+                    '2' => '2',
+                    '3' => '3',
+                    '4' => '4',
+                    '5' => '5',
+                    ],
             ])
-            ->add('jazykovaUroven', StarRatingType::class, [
+            ->add('jazykovaUroven', ChoiceType::class, [
                 'label' => 'Jazyková úroveň',
+                'choices'  => [
+                    '1' => '1',
+                    '2' => '2',
+                    '3' => '3',
+                    '4' => '4',
+                    '5' => '5',
+                    ],
             ])
             ->add('file', FileType::class,
             [

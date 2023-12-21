@@ -46,10 +46,6 @@ class UkolFormType extends AbstractType
                 'multiple' => false,
                 'required' => true,
             ])
-            ->add('done', CheckboxType::class, [
-                'label' => 'Splněno',
-                'required' => false
-            ]);
         ;
     }
 
