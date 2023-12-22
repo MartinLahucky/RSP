@@ -11,7 +11,11 @@
 <div class="example-wrapper">
     <h2>Verze článku</h2>
     <b>Clanek: </b>{{clanek_verze[0].getClanek().getNazevClanku()}}<br/>
-    <a class="btn btn-primary" href="{{ path('app_create_verze_clanek', {'clanek_id': clanek_verze[0].getClanek().getId() }) }}">Nova verze clanku</a><br/>
+
+    {% if app.user.getId() == clanek_verze[0].getClanek().getUser().getId() %}
+        <a class="btn btn-primary" href="{{ path('app_create_verze_clanek', {'clanek_id': clanek_verze[0].getClanek().getId() }) }}">Nova verze clanku</a><br/>
+    {% endif %}
+
     <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;" >
         <thead class="shadow-sm">
          <tr>

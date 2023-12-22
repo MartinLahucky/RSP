@@ -16,6 +16,7 @@
             <th>Ukoly</th>
             <th>Deadline</th>
             <th>Nazev clanky</th>
+             <th>Stav ukolu</th>
              <th>Clanek</th>
             <th>Zaslat posudek</th>
          </tr>
@@ -29,6 +30,7 @@
                  <td> {{ (i + 1) }} </td>
                 <td> {{ ukoly[i].getDeadline() }} </td>
                <td> {{ ukoly[i].getClanek().getNazevClanku() }}</td>
+                 <td>{{ stavy[i] }}</td>
                  <td>
                      <a class="btn btn-primary" href="{{ path('app_author_article_detail', {'clanek_id': clanky[i].getId() }) }}">Zobrazit</a>
                  </td>

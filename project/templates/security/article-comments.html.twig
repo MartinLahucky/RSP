@@ -18,7 +18,11 @@
         Datum: {{ clanek_verze.getDatumNahrani() }}<br/>
         Namitka:
         {% if namitka == null %}
-            <a href="{{ path('app_create_namitka', {'clanek_id': clanek_verze.getClanek().getId()}) }}">Vytvorit</a>
+            {% if app.user.getId() == clanek_verze.getClanek().getUser().getId() %}
+                <a href="{{ path('app_create_namitka', {'clanek_id': clanek_verze.getClanek().getId()}) }}">Vytvorit</a>
+            {% else %}
+                <i>Zadna</i>
+            {% endif %}
         {% else %}
             <a href="{{ path('app_show_namitka', {'namitka_id': namitka.getId()}) }}">Zobrazit</a>
         {% endif %}
@@ -27,14 +31,14 @@
         {% if posudek1 == null %}
             <i>Zadny</i><br/>
         {% else %}
-            <a href="{{ path('app_download', {'slozka': 'posudky', 'posudek_id': posudek1.getId(), 'posudek_soubor': posudek1.getPosudekSoubor() }) }}">{{ posudek1.getPosudekSoubor() }}</a><br/>
+            <a href="{{ path('app_show_posudek', {'posudek_id': posudek1.getId() }) }}">Zobrazit</a><br/>
         {% endif %}
 
         2. posudek:
         {% if posudek2 == null %}
             <i>Zadny</i>
         {% else %}
-            <a href="{{ path('app_download', {'slozka': 'posudky', 'posudek_id': posudek2.getId(), 'posudek_soubor': posudek2.getPosudekSoubor() }) }}">{{ posudek2.getPosudekSoubor() }}</a><br/>
+            <a href="{{ path('app_show_posudek', {'posudek_id': posudek1.getId() }) }}">Zobrazit</a><br/>
         {% endif %}
     </div><br/>
 

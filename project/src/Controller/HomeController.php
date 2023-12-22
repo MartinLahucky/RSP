@@ -892,17 +892,59 @@ class HomeController extends AbstractController
         $user = $doctrine->getManager()->getRepository(User::class)->findOneBy(['email' => $this->getUser()->getUserIdentifier()]);
         $ukoly = $doctrine->getManager()->getRepository(Ukol::class)->findBy(['user' => $user->getId()]);
         $clanky = array();
+        $stavy = array();
+        $current_date = strtotime(date('d.m.Y'));
         foreach ($ukoly as $ukol)
         {
             $clanek = $doctrine->getManager()->getRepository(Clanek::class)->findOneBy(['id' => $ukol->getClanek()->getId()]);
             array_push($clanky, $clanek);
+
+            // Zjistit zda je ukol stale aktivni nebo ne
+            if ($current_date > strtotime($ukol->getDeadline())) {
+                array_push($stavy, "Neaktivni");
+            }
+            else {
+                array_push($stavy, "Aktivni");
+            }
         }
+
+        $ukoly = array_reverse($ukoly);
+        $stavy = array_reverse($stavy);
+        $clanky = array_reverse($clanky);
 
         return $this->render('home/recenzent-ukoly-overview.html.twig',
             [
                 'ukoly' => $ukoly,
-                'clanky' => $clanky
+                'clanky' => $clanky,
+                'stavy' => $stavy
             ]);
+    }
+
+    #[Route(path: '/show-posudek/{posudek_id}', name: 'app_show_posudek')]
+    public function showPosudek(Request $request, ManagerRegistry $doctrine, $posudek_id): Response
+    {
+        if ($this->getUser()==null)
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        if (!in_array(Role::RECENZENT->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::AUTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::REDAKTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles()))
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        $em = $doctrine->getManager();
+        $posudek = $em->getRepository(Posudek::class)->findOneBy(['id' => $posudek_id]);
+        if (!$posudek) {
+            return new Response("Chyba nacitani posudku!");
+        }
+
+        return $this->render('security/posudek.html.twig', [
+            'posudek' => $posudek
+        ]);
     }
 
     // Zaslani posudku
@@ -918,13 +960,29 @@ class HomeController extends AbstractController
             return new Response("Pristup zamitnut");
         }
 
+        $em = $doctrine->getManager();
+        $clanek = $em->getRepository(Clanek::class)->findOneBy(['id' => $clanek_id]);
+        $zaslane_posudky = $em->getRepository(Posudek::class)->findBy(['clanek' => $clanek_id]);
+        if ($zaslane_posudky != null)
+        {
+            if (count($zaslane_posudky) == 1 && $zaslane_posudky[0]->getUser()->getUserIdentifier() == $this->getUser()->getUserIdentifier())
+            {
+                return new Response("Nelze zaslat vice posudku pro jeden clanek!");
+            }
+
+            else if (count($zaslane_posudky) == 2 &&
+                ($zaslane_posudky[0]->getUser()->getUserIdentifier() == $this->getUser()->getUserIdentifier() ||
+                    $zaslane_posudky[1]->getUser()->getUserIdentifier() == $this->getUser()->getUserIdentifier()))
+            {
+                return new Response("Nelze zaslat vice posudku pro jeden clanek!");
+            }
+        }
+
         $form = $this->createForm(PosudekType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid())
         {
-            $em = $doctrine->getManager();
-
             $aktualnost = $form->get('aktualnost')->getData();
             $originalita = $form->get('originalita')->getData();
             $odbornaUroven = $form->get('odbornaUroven')->getData();
@@ -937,7 +995,7 @@ class HomeController extends AbstractController
             $posudek->setOdbornaUroven($odbornaUroven);
             $posudek->setJazykovaUroven($jazykovaUroven);
             $posudek->setPosudekSoubor($soubor->getClientOriginalName());
-            $posudek->setClanek($em->getRepository(Clanek::class)->findOneBy(['id' => $clanek_id]));
+            $posudek->setClanek($clanek);
             $posudek->setUser($em->getRepository(User::class)->findOneBy(['email' => $this->getUser()->getUserIdentifier()]));
 
             $em->persist($posudek);
