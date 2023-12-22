@@ -46,8 +46,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\ManyToMany(targetEntity: Ukol::class, mappedBy: 'user')]
-    private Collection $ukoly;
+    //#[ORM\ManyToMany(targetEntity: Ukol::class, mappedBy: 'user')]
+    //private Collection $ukoly;
 
     public function __construct()
     {
@@ -126,9 +126,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function isAdmin(): bool
     {
-        // Assuming $this->roles is an array of Role enum objects
         foreach ($this->roles as $role) {
             if ($role === \App\Entity\Role::ADMIN->value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isRecenzent(): bool
+    {
+        foreach ($this->roles as $role) {
+            if ($role === \App\Entity\Role::RECENZENT->value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isRedaktor(): bool
+    {
+        foreach ($this->roles as $role) {
+            if ($role === \App\Entity\Role::REDAKTOR->value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isSefredaktor(): bool
+    {
+        foreach ($this->roles as $role) {
+            if ($role === \App\Entity\Role::SEFREDAKTOR->value) {
                 return true;
             }
         }
@@ -180,7 +212,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Ukol>
      */
-    public function getUkoly(): Collection
+    /*public function getUkoly(): Collection
     {
         return $this->ukoly;
     }
@@ -202,5 +234,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
-    }
+    }*/
 }

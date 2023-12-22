@@ -9,6 +9,24 @@
 </style>
 
 <div class="container kontejner">
+  <div class="filter-dropdown">
+    <br>
+    <form method="get" action="{{ path('app_home') }}" class="form-inline">
+      {% if app.request.query.get('autor-filter') or app.request.query.get('search') %}
+        <button type="submit" class="btn btn-danger">Remove Filter</button>
+      {% else %}
+        <select name="autor-filter" onchange="this.form.submit()" class="form-control">
+            <option value="">Autor ↓</option>
+            {% if authors != null %}
+                {% for i in 0..(authors|length - 1) %}
+                <option value="{{ authorsIds[i] }}">{{ authors[i] }}</option>
+                {% endfor %}
+            {% endif %}
+        </select>
+      {% endif %}
+    </form>
+  </div>
+  
 {% if clanky == null %}
     <span><br>Zadne clanky k zobrazeni</span>
 {% else %}

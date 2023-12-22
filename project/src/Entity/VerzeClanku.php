@@ -24,9 +24,6 @@ class VerzeClanku
     #[ORM\Column(length: 1000)]
     private ?string $soubor_clanek = null;
 
-    #[ORM\Column]
-    private ?bool $zpristupnen_recenzentum = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -64,18 +61,6 @@ class VerzeClanku
     public function setSouborClanek(string $soubor_clanek): static
     {
         $this->soubor_clanek = $soubor_clanek;
-
-        return $this;
-    }
-
-    public function isZpristupnenRecenzentum(): ?bool
-    {
-        return $this->zpristupnen_recenzentum;
-    }
-
-    public function setZpristupnenRecenzentum(bool $zpristupnen_recenzentum): static
-    {
-        $this->zpristupnen_recenzentum = $zpristupnen_recenzentum;
 
         return $this;
     }

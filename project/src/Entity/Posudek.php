@@ -25,13 +25,7 @@ class Posudek
     private ?string $posudek_soubor = null;
 
     #[ORM\Column]
-    private ?bool $zpristupnen_autorovi = null;
-
-    #[ORM\Column]
     private ?int $aktualnost = null;
-
-    #[ORM\Column]
-    private ?int $zajimavost = null;
 
     #[ORM\Column]
     private ?int $originalita = null;
@@ -83,18 +77,6 @@ class Posudek
         return $this;
     }
 
-    public function isZpristupnenAutorovi(): ?bool
-    {
-        return $this->zpristupnen_autorovi;
-    }
-
-    public function setZpristupnenAutorovi(bool $zpristupnen_autorovi): static
-    {
-        $this->zpristupnen_autorovi = $zpristupnen_autorovi;
-
-        return $this;
-    }
-
     public function getAktualnost(): ?int
     {
         return $this->aktualnost;
@@ -103,18 +85,6 @@ class Posudek
     public function setAktualnost(int $aktualnost): static
     {
         $this->aktualnost = $aktualnost;
-
-        return $this;
-    }
-
-    public function getZajimavost(): ?int
-    {
-        return $this->zajimavost;
-    }
-
-    public function setZajimavost(int $zajimavost): static
-    {
-        $this->zajimavost = $zajimavost;
 
         return $this;
     }

@@ -20,15 +20,16 @@ class Ukol
     #[ORM\JoinColumn(nullable: false)]
     private ?Clanek $clanek = null;
 
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'ukoly')]
-    private Collection $user;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
     #[ORM\Column(length: 10)]
     private ?string $deadline = null;
 
     public function __construct()
     {
-        $this->user = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -48,27 +49,26 @@ class Ukol
         return $this;
     }
 
-    /**
-     * @return Collection<int, User>
-     */
-    public function getUser(): Collection
+    public function getDescription(): ?string
     {
-        return $this->user;
+        return $this->description;
     }
 
-    public function addUser(User $user): static
+    public function setDescription(string $description): static
     {
-        if (!$this->user->contains($user)) {
-            $this->user->add($user);
-        }
+        $this->description = $description;
 
         return $this;
     }
 
-    public function removeUser(User $user): static
+    public function getUser(): User
     {
-        $this->user->removeElement($user);
+        return $this->user;
+    }
 
+    public function setUser(User $user): static
+    {
+        $this->user = $user;
         return $this;
     }
 

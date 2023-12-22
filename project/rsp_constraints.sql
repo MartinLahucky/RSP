@@ -43,8 +43,8 @@ REFERENCES clanek(id) ON DELETE CASCADE;
 
 ALTER TABLE komentar_ukol
 ADD CONSTRAINT komentar_ukol_constr 
-FOREIGN KEY (ukol_id) 
-REFERENCES ukol(id) ON DELETE CASCADE;
+FOREIGN KEY (verze_clanku_id) 
+REFERENCES verze_clanku(id) ON DELETE CASCADE;
 
 
 

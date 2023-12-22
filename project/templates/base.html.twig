@@ -16,24 +16,7 @@
         {% endblock %}
     </head>
     <body class="d-flex flex-column h-100">
-    <!-- 
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Navbar</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="nav-link active" aria-current="page" href="#">Home</a>
-        <a class="nav-link" href="#">Features</a>
-        <a class="nav-link" href="#">Pricing</a>
-        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-      </div>
-    </div>
-  </div>
-</nav>
-!-->
+
 <!-- Navigation -->
 <nav class="navbar navbar-expand-md navbar-dark bg-red">
           <div class="container-fluid">
@@ -51,7 +34,14 @@
                 </a> 
               </ul>
 
+                <a class="nav-link btn m-1 p-1 white" href="{{ path('app_rules') }}">Pravidla</a>
                 {% if app.user %}
+                    {% if app.user.isRecenzent() %}
+                        <a class="nav-link btn m-1 p-1 white" href="{{ path('app_recenzent_ukoly_overview') }}">Ukoly</a>
+                    {% endif %}
+                    {% if app.user.isSefredaktor() %}
+                        <a class="nav-link btn m-1 p-1 white" href="{{ path('app_prehled_clanku_schvaleni') }}">Schvaleni clanku</a>
+                    {% endif %}
                     {% if app.user.isAdmin %}
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_manage_content') }}">Správa obsahu</a>
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_user_overview') }}">Správa uživatelů</a>
@@ -65,11 +55,10 @@
                     <a class="nav-link btn m-1 p-1 white" href="{{ path('app_register') }}">Registrace</a>
                     <a class="nav-link btn m-1 p-1 white" href="{{ path('app_login') }}">Přihlášení</a>
                 {% endif %}
-            
                 </div>
                 <form action="{{ path('app_home') }}" method="get">
                   <input type="text" name="search" placeholder="Hledat clanky...">
-                  <button type="submit">Hledat</button>
+                  <button type="submit" class="btn btn-light">Hledat</button>
               </form>
               
           </div>
@@ -90,7 +79,12 @@
                 <h1 class="white">KERNEL</h1>
                 </a> 
               </ul>
+
+                <a class="nav-link btn m-1 p-1 white" href="{{ path('app_rules') }}">Pravidla</a>
                 {% if app.user %}
+                    {% if app.user.isRecenzent() %}
+                        <a class="nav-link btn m-1 p-1 white" href="{{ path('app_recenzent_ukoly_overview') }}">Ukoly</a>
+                    {% endif %}
                     {% if app.user.isAdmin %}
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_manage_content') }}">Správa obsahu</a>
                         <a class="nav-link btn m-1 p-1 white" href="{{ path('app_user_overview') }}">Správa uživatelů</a>
@@ -104,11 +98,10 @@
                     <a class="nav-link btn m-1 p-1 white" href="{{ path('app_register') }}">Registrace</a>
                     <a class="nav-link btn m-1 p-1 white" href="{{ path('app_login') }}">Přihlášení</a>
                 {% endif %}
-            
                 </div>
                 <form action="{{ path('app_home') }}" method="get">
                   <input type="text" name="search" placeholder="Hledat clanky...">
-                  <button type="submit">Hledat</button>
+                  <button type="submit" class="btn btn-light">Hledat</button>
                 </form>
               
           </div>

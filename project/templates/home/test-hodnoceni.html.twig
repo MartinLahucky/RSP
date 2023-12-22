@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<style>
+.star-rating-row{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: 5px; /* Adjust the spacing between checkboxes */
+}
+.star-rating-row label {
+    color: #fff; /* Set the color of the stars to white */
+}
+.white{
+    color: white;
+}
+</style>
+
+     <div class="container">
+  <div class="row justify-content-center">
+    <div class="col-xs-4 login m-3">
+          <h1 class="p-3 headingLogin text-center m-3">Podani posudku</h1>
+             {{ form_start(form) }}
+<div class="form-group mt-2 white">
+    {{ form_label(form.aktualnost, 'Aktuálnost', {'label_attr': {'class': 'col-form-label col-sm-2 white text-center'}}) }}<br />
+    {{ form_widget(form.aktualnost, {'attr': {'class': 'star-rating-row mx-auto'}}) }}
+</div>
+<div class="form-group mt-2 white">
+    {{ form_label(form.originalita, 'Originalita', {'label_attr': {'class': 'col-form-label col-sm-2 white text-center'}}) }}<br />
+    {{ form_widget(form.originalita, {'attr': {'class': 'text-center mx-auto star-rating-row'}}) }}
+</div>
+<div class="form-group mt-2 white">
+    {{ form_label(form.odbornaUroven, 'Odborna uroven', {'label_attr': {'class': 'col-form-label col-sm-2 white text-center'}}) }}<br />
+    {{ form_widget(form.odbornaUroven, {'attr': {'class': 'text-center mx-auto star-rating-row'}}) }}
+</div>
+<div class="form-group mt-2 white">
+    {{ form_label(form.jazykovaUroven, 'Jazykove uroven', {'label_attr': {'class': 'col-form-label col-sm-2 white text-center'}}) }}<br />
+    {{ form_widget(form.jazykovaUroven, {'attr': {'class': 'text-center mx-auto star-rating-row'}}) }}
+</div><br /><br />
+<div class="form-group mt-2 white">
+    {{ form_label(form.file, 'Soubor', {'label_attr': {'class': 'col-form-label col-sm-2 white text-center'}}) }}
+    {{ form_widget(form.file, {'attr': {'class': ''}}) }}<br />
+    </div>
+    <div class="form-group mt-5 white">
+    <button type="submit">Create Review</button>
+    </div>
+    {{ form_end(form) }}
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

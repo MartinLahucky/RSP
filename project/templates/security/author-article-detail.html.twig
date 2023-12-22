@@ -10,7 +10,8 @@
 
 <div class="example-wrapper">
     <h2>Verze článku</h2>
-    <b>Clanek: </b>{{clanek_verze[0].getClanek().getNazevClanku()}}
+    <b>Clanek: </b>{{clanek_verze[0].getClanek().getNazevClanku()}}<br/>
+    <a class="btn btn-primary" href="{{ path('app_create_verze_clanek', {'clanek_id': clanek_verze[0].getClanek().getId() }) }}">Nova verze clanku</a><br/>
     <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;" >
         <thead class="shadow-sm">
          <tr>
@@ -25,7 +26,13 @@
             <td> {{ (i + 1) }} </td>
             <td> {{ clanek_verze[i].getDatumNahrani() }} </td>
            <td>
-                <a class="btn btn-primary" href="{{ path('app_article_comments', {'verze_clanku_id': clanek_verze[i].getId() }) }}">Zobrazit</a>
+               {% if (app.user.isAutor() and app.user.isRecenzent() == false) or app.user.isRedaktor() or app.user.isSefredaktor() %}
+                <a class="btn btn-primary" href="{{ path('app_article_comments', {'verze_clanku_id': clanek_verze[i].getId() }) }}">Zobrazit</a><br/>
+                {% endif %}
+
+               {% if app.user.isRecenzent() or app.user.isRedaktor() or app.user.isSefredaktor() %}
+                   <a class="btn btn-primary" href="{{ path('app_redaction_comments', {'verze_clanku_id': clanek_verze[i].getId() }) }}">Komentare redakce</a><br/>
+               {% endif %}
            </td>
          </tr>
         {% endfor %}

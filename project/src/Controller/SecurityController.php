@@ -4,14 +4,18 @@ namespace App\Controller;
 
 use App\Entity\Clanek;
 use App\Entity\KomentarClanek;
+use App\Entity\KomentarUkol;
 use App\Entity\Namitka;
+use App\Entity\Posudek;
 use App\Entity\Role;
+use App\Entity\Ukol;
 use App\Entity\User;
 use App\Entity\VerzeClanku;
 use App\Form\CreateNamitkaType;
 use App\Form\KomentarType;
 use App\Form\UserRolesFormType;
 use App\Form\UserEditFormType;
+use App\Form\ZmenaStavuType;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
@@ -29,15 +33,27 @@ class SecurityController extends AbstractController
     #[Route(path: '/download', name: 'app_download')]
     public function download(Request $request): BinaryFileResponse
     {
-        $clanek = $request->query->get('clanek');
-        $verze = $request->query->get('verze');
-        $soubor = $request->query->get('soubor');
+        $path = $this->getParameter('public_dir');
+        $slozka = $request->query->get('slozka');
 
-        // Assume the file is stored in the web/uploads directory
-        $path = $this->getParameter('public_dir') . '/clanky/' . $clanek . '/' . $verze . '/' . $soubor;
+        if ($slozka != null && $slozka == 'posudky')
+        {
+            $posudek_id = $request->query->get('posudek_id');
+            $posudek_soubor = $request->query->get('posudek_soubor');
+            $path = $path . '/posudky/' . $posudek_id . '/' . $posudek_soubor;
+        }
+
+        else
+        {
+            $clanek = $request->query->get('clanek');
+            $verze = $request->query->get('verze');
+            $soubor = $request->query->get('soubor');
+
+            // Assume the file is stored in the web/uploads directory
+            $path = $path . '/clanky/' . $clanek . '/' . $verze . '/' . $soubor;
+        }
+
         $file_name = basename($path);
-
-        // Create a BinaryFileResponse instance
         $response = new BinaryFileResponse($path);
 
         // Set the filename and the disposition
@@ -306,10 +322,11 @@ class SecurityController extends AbstractController
         if ($this->getUser() == null) {
             return new Response("Pristup zamitnut");
         }
-        if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles())
-            && !in_array(Role::REDAKTOR->value, $this->getUser()->getRoles()))
+        if (!in_array(Role::AUTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::REDAKTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles()))
         {
-            return new Response("Pristup odepren");
+            return new Response("Pristup zamitnut");
         }
 
         // Nacteni infa o verzi vlanku
@@ -324,13 +341,13 @@ class SecurityController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid())
         {
-            $komentar_clanek = new KomentarClanek();
-            $komentar_clanek->setVerzeClanku($verze_clanku);
-            $komentar_clanek->setUser($this->getUser());
-            $komentar_clanek->setDatum(date('d.m.Y'));
-            $komentar_clanek->setText($form->get('komentar')->getData());
+            $komentar = new KomentarClanek();
+            $komentar->setVerzeClanku($verze_clanku);
+            $komentar->setUser($this->getUser());
+            $komentar->setDatum(date('d.m.Y'));
+            $komentar->setText($form->get('komentar')->getData());
 
-            $manager->persist($komentar_clanek);
+            $manager->persist($komentar);
             $manager->flush();
 
             return $this->redirectToRoute('app_article_comments', ['verze_clanku_id' => $verze_clanku->getId()]);
@@ -342,21 +359,102 @@ class SecurityController extends AbstractController
         // Nacteni namitky
         $namitka = $manager->getRepository(Namitka::class)->findOneBy(['clanek' => $verze_clanku->getClanek()]);
 
+        // Nacteni posudku
+        $posudek1 = null;
+        $posudek2 = null;
+        $posudky = $manager->getRepository(Posudek::class)->findBy(['clanek' => $verze_clanku->getClanek()->getId()]);
+        if ($posudky != null)
+        {
+            if (count($posudky) == 1) {
+                $posudek1 = $posudky[0];
+            }
+            else if (count($posudky) > 1)
+            {
+                $posudek1 = $posudky[0];
+                $posudek2 = $posudky[1];
+            }
+        }
+
         return $this->render('security/article-comments.html.twig',
         [
             'form' => $form->createView(),
             'clanek_verze' => $verze_clanku,
             'komentare' => $komentare,
             'namitka' => $namitka,
+            'posudek1' => $posudek1,
+            'posudek2' => $posudek2,
         ]);
     }
 
-    // Zde budou zobrazeno konverzace mezi dvema recenzenty a redaktorem a bude zde link na stazeni dane verze clanku
-    #[Route(path: '/task-comments/{ukol_id}', name: 'app_task_comments')]
-    public function taskComments(ManagerRegistry $doctrine, $ukol_id): Response
+    #[Route(path: '/redaction-comments/{verze_clanku_id}', name: 'app_redaction_comments')]
+    public function redactionComments(Request $request, ManagerRegistry $doctrine, $verze_clanku_id): Response
     {
-        // TODO: Dodelat pak v jinem user story
-        return new Response("neimplementovano");
+        // Zkontroluje prava
+        if ($this->getUser() == null) {
+            return new Response("Pristup zamitnut");
+        }
+        if (!in_array(Role::REDAKTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::RECENZENT->value, $this->getUser()->getRoles()))
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        // Nacteni infa o verzi vlanku
+        $manager = $doctrine->getManager();
+        $verze_clanku = $manager->getRepository(VerzeClanku::class)->find($verze_clanku_id);
+        if (!$verze_clanku) {
+            return new Response("Verze clanku nenalezena");
+        }
+
+        $form = $this->createForm(KomentarType::class);
+        $form->handleRequest($request);  //Předání dat z formuláře
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $komentar = new KomentarUkol();
+            $komentar->setVerzeClanku($verze_clanku);
+            $komentar->setUser($this->getUser());
+            $komentar->setDatum(date('d.m.Y'));
+            $komentar->setText($form->get('komentar')->getData());
+
+            $manager->persist($komentar);
+            $manager->flush();
+
+            return $this->redirectToRoute('app_redaction_comments', ['verze_clanku_id' => $verze_clanku->getId()]);
+        }
+
+        // Nacteni komentaru
+        $komentare = $manager->getRepository(KomentarUkol::class)->findBy(['verze_clanku' => $verze_clanku->getId()]);
+
+        // Nacteni namitky
+        $namitka = $manager->getRepository(Namitka::class)->findOneBy(['clanek' => $verze_clanku->getClanek()]);
+
+        // Nacteni posudku
+        $posudek1 = null;
+        $posudek2 = null;
+        $posudky = $manager->getRepository(Posudek::class)->findBy(['clanek' => $verze_clanku->getClanek()->getId()]);
+        if ($posudky != null)
+        {
+            if (count($posudky) == 1) {
+                $posudek1 = $posudky[0];
+            }
+            else if (count($posudky) > 1)
+            {
+                $posudek1 = $posudky[0];
+                $posudek2 = $posudky[1];
+            }
+        }
+
+        return $this->render('security/article-comments.html.twig',
+            [
+                'form' => $form->createView(),
+                'clanek_verze' => $verze_clanku,
+                'komentare' => $komentare,
+                'namitka' => $namitka,
+                'posudek1' => $posudek1,
+                'posudek2' => $posudek2,
+            ]);
     }
 
     #[Route(path: '/show-namitka/{namitka_id}', name: 'app_show_namitka')]
@@ -437,6 +535,12 @@ class SecurityController extends AbstractController
             return new Response("Pristup zamitnut");
         }
 
+        $em = $doctrine->getManager();
+        $clanek = $em->getRepository(Clanek::class)->find($clanek_id);
+        if (!$clanek) {
+            return new Response("Chyba aktualizovani clanku!");
+        }
+
         $stav_autor = $request->query->get('stav_autor');
         $stav_redakce = $request->query->get('stav_redakce');
 
@@ -458,5 +562,47 @@ class SecurityController extends AbstractController
 
         // Presmerovat zpet
         return $this->redirect($request->headers->get('referer'));
+    }
+
+    #[Route(path: '/zmenit-stav-clanku-formular/{clanek_id}', name: 'app_zmenit_stav_clanku_formular')]
+    public function zmenitStavClankuFormular(Request $request, ManagerRegistry $doctrine, $clanek_id): Response
+    {
+        if ($this->getUser() == null) {
+            return new Response("Pristup zamitnut");
+        }
+        if (!in_array(Role::SEFREDAKTOR->value, $this->getUser()->getRoles()) &&
+            !in_array(Role::REDAKTOR->value, $this->getUser()->getRoles()))
+        {
+            return new Response("Pristup zamitnut");
+        }
+
+        $em = $doctrine->getManager();
+        $clanek = $em->getRepository(Clanek::class)->find($clanek_id);
+        if (!$clanek) {
+            return new Response("Chyba aktualizovani clanku!");
+        }
+
+        $form = $this->createForm(ZmenaStavuType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $stav_autor = $form->get('stavAutor')->getData();
+            $stav_redakce = $form->get('stavRedakce')->getData();
+
+            if ($stav_autor) {
+                $clanek->setStavAutor($stav_autor);
+            }
+            if ($stav_redakce) {
+                $clanek->setStavRedakce($stav_redakce);
+            }
+
+            $em->persist($clanek);
+            $em->flush();
+
+            return $this->redirectToRoute('app_clanky_overview');
+        }
+
+        return $this->render('home/zmenit-stav-clanek.html.twig', ['form' => $form, 'clanek' => $clanek]);
     }
 }

@@ -22,6 +22,20 @@
         {% else %}
             <a href="{{ path('app_show_namitka', {'namitka_id': namitka.getId()}) }}">Zobrazit</a>
         {% endif %}
+
+        <br/>1. posudek:
+        {% if posudek1 == null %}
+            <i>Zadny</i><br/>
+        {% else %}
+            <a href="{{ path('app_download', {'slozka': 'posudky', 'posudek_id': posudek1.getId(), 'posudek_soubor': posudek1.getPosudekSoubor() }) }}">{{ posudek1.getPosudekSoubor() }}</a><br/>
+        {% endif %}
+
+        2. posudek:
+        {% if posudek2 == null %}
+            <i>Zadny</i>
+        {% else %}
+            <a href="{{ path('app_download', {'slozka': 'posudky', 'posudek_id': posudek2.getId(), 'posudek_soubor': posudek2.getPosudekSoubor() }) }}">{{ posudek2.getPosudekSoubor() }}</a><br/>
+        {% endif %}
     </div><br/>
 
     <h2>Komentare</h2>
